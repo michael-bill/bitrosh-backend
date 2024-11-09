@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+			http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+    <include file="sql/function/card_count.sql" relativeToChangelogFile="true"/>
+    <include file="sql/function/log_card_move.sql" relativeToChangelogFile="true"/>
+    <include file="sql/function/mark_message_as_read.sql" relativeToChangelogFile="true"/>
+    <include file="sql/function/update_updated_at.sql" relativeToChangelogFile="true"/>
+
+    <include file="sql/table/users.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/workspace.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/roles.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/user_roles.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/user_workspace.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/sprint.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/board_columns.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/chat.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/chat_user.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/card.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/messages.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/poll.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/card_comments.sql" relativeToChangelogFile="true"/>
+
+    <include file="sql/data/add_start_data.sql" relativeToChangelogFile="true"/>
+</databaseChangeLog>
