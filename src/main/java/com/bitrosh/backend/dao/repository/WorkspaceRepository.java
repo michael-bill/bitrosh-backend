@@ -16,5 +16,5 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, String> {
     Page<Workspace> findAllWorkspacesByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("select w from Workspace w join UserWorkspace uw on w.name = uw.workspace.id")
-    Page<Workspace> findAllWorkspaces(@Param("userId") Long userId, Pageable pageable);
+    Page<Workspace> findAllWorkspaces(Pageable pageable);
 }

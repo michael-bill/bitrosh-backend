@@ -1,6 +1,7 @@
 package com.bitrosh.backend.controller;
 
 import com.bitrosh.backend.dao.entity.User;
+import com.bitrosh.backend.dto.core.WorkspaceReqDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
 import com.bitrosh.backend.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,13 +12,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/workspace")
 @Tag(name = "Работа с рабочими пространствами")
 public class WorkspaceController {
 
@@ -35,6 +38,15 @@ public class WorkspaceController {
             Integer size
     ) {
         return workspaceService.getAllWorkspaces(user, PageRequest.of(page, size));
+    }
+
+    @Operation(summary = "Создать рабочее пространство (пока не работает)", hidden = true)
+    @PostMapping("/create")
+    public WorkspaceResDto createWorkspace(
+            @AuthenticationPrincipal User user,
+            @RequestBody WorkspaceReqDto workspace
+    ) {
+        return workspaceService.create(user, workspace);
     }
 
 }

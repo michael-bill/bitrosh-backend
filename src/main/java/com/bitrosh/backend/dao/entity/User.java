@@ -80,6 +80,10 @@ public class User implements UserDetails {
         return true;
     }
 
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
+    }
+
     public enum Role {
         USER,
         ADMIN
