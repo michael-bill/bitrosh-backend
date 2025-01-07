@@ -1,4 +1,4 @@
-package com.bitrosh.backend.dto;
+package com.bitrosh.backend.dto.messages;
 
 import java.time.LocalDateTime;
 
