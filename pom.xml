@@ -9,9 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.bitrosh</groupId>
-	<artifactId>backend</artifactId>
-	<name>backend</name>
-	<description>Demo project for Spring Boot</description>
+	<artifactId>bitrosh-backend</artifactId>
+	<name>bitrosh-backend</name>
 	<url/>
 	<licenses>
 		<license/>
