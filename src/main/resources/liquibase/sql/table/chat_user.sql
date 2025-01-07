@@ -3,8 +3,8 @@
 --changeset michael-bill:chat_users
 create table if not exists chat_user
 (
-    id integer primary key,
-    chat_id integer references chat (id) not null,
+    id bigserial primary key,
+    chat_id bigint references chat (id) not null,
     user_id bigint references users (id) not null,
     join_at timestamp not null,
     role varchar(16) not null

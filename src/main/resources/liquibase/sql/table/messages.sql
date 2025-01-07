@@ -3,10 +3,10 @@
 --changeset michael-bill:messages_table
 create table if not exists messages
 (
-    id integer primary key,
-    conversation_id integer references chat (id) not null,
+    id bigserial primary key,
+    conversation_id bigint references chat (id) not null,
     sender_id bigint references users (id) not null,
-    card_id integer references card (id),
+    card_id bigint references card (id),
     text_content text check (char_length(text_content) >= 1),
     file_path text,
     created_at timestamp not null default current_timestamp,

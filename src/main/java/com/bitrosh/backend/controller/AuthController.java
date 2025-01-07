@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
 @RequiredArgsConstructor
+@RequestMapping("/auth")
 @Tag(name = "Аутентификация")
 public class AuthController {
+
     private final AuthService authenticationService;
 
     @Operation(summary = "Регистрация пользователя")
@@ -31,4 +32,5 @@ public class AuthController {
     public JwtAuthDto signIn(@RequestBody @Valid SignInRequest request) {
         return authenticationService.signIn(request);
     }
+
 }

@@ -3,12 +3,12 @@
 --changeset michael-bill:card_table
 create table if not exists card
 (
-    id integer primary key,
-    column_id integer references board_columns (id) not null,
+    id bigserial primary key,
+    column_id bigint references board_columns (id) not null,
     created_by bigint references users (id) not null,
     changed_at timestamp not null default current_timestamp,
     executor_id bigint references users (id),
-    sprint_id integer references sprint (id) not null,
+    sprint_id bigint references sprint (id) not null,
     title text check (char_length(title) >= 1),
     content text check (char_length(content) >= 1),
     comments text,

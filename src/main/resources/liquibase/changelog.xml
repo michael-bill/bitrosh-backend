@@ -9,8 +9,8 @@
     <include file="sql/function/mark_message_as_read.sql" relativeToChangelogFile="true"/>
     <include file="sql/function/update_updated_at.sql" relativeToChangelogFile="true"/>
 
-    <include file="sql/table/users.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/workspace.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/users.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/roles.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/user_workspace.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/sprint.sql" relativeToChangelogFile="true"/>

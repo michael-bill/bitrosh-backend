@@ -15,7 +15,7 @@ public class OpenApiConfig {
     public OpenAPI customizeOpenAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
-                .info(new Info().title("Your API Title").version("v1"))
+                .info(new Info().title("Bitrosh API").version("v1"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()

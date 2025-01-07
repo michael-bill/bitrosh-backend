@@ -1,8 +1,10 @@
 package com.bitrosh.backend.service;
 
-import com.bitrosh.backend.entity.User;
+import com.bitrosh.backend.cofiguration.DtoMapper;
+import com.bitrosh.backend.dto.core.UserInfoDto;
+import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.exception.UniqueValueExistsException;
-import com.bitrosh.backend.repository.UserRepository;
+import com.bitrosh.backend.dao.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +14,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository repository;
+    private final DtoMapper dtoMapper;
 
     public User save(User user) {
         return repository.save(user);
@@ -35,7 +39,7 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return getByUsername(username);
     }
 
@@ -43,9 +47,13 @@ public class UserService {
         return repository.countByRole(User.Role.ADMIN);
     }
 
+    public UserInfoDto getUserInfo(User user) {
+        return dtoMapper.map(user, UserInfoDto.class);
+    }
+
     @Deprecated
     public void getAdmin() {
-        var user = getCurrentUser();
+        User user = getCurrentUser();
         user.setRole(User.Role.ADMIN);
         save(user);
     }

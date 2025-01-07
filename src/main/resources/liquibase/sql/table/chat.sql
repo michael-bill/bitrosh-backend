@@ -3,7 +3,7 @@
 --changeset michael-bill:chat_table
 create table if not exists chat
 (
-    id integer primary key,
+    id bigserial primary key,
     workspace_id varchar(128) references workspace (name) not null,
     created_by bigint references users (id) not null,
     title varchar(64) check (char_length(title) >= 1),
