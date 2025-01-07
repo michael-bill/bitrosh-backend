@@ -12,7 +12,6 @@
     <include file="sql/table/users.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/workspace.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/roles.sql" relativeToChangelogFile="true"/>
-    <include file="sql/table/user_roles.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/user_workspace.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/sprint.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/board_columns.sql" relativeToChangelogFile="true"/>

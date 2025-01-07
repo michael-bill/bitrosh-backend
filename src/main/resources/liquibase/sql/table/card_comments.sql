@@ -3,13 +3,13 @@
 --changeset michael-bill:card_comments_table
 create table if not exists card_comments
 (
-    id                  integer primary key,
-    user_id             varchar(32) references users (login) not null,
-    card_id             integer  not null,
+    id integer primary key,
+    user_id bigint references users (id) not null,
+    card_id integer  not null,
     reply_to_comment_id integer references card_comments (id),
-    content             text                          not null,
-    created_at  timestamp not null default current_timestamp,
-    updated_at  timestamp not null default current_timestamp
+    content text not null,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp
 );
 
 create index idx_card_comments_card_id on card_comments(card_id);

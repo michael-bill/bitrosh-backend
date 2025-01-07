@@ -3,19 +3,19 @@
 --changeset michael-bill:card_table
 create table if not exists card
 (
-    id          integer primary key,
-    column_id   integer references board_columns (id) not null,
-    created_by  varchar(32) references users (login)   not null,
-    changed_at    timestamp not null default current_timestamp,
-    executor_id varchar(32) references users (login),
-    sprint_id   integer references sprint (id)  not null,
-    title       text check (char_length(title) >= 1),
-    content     text check (char_length(content) >= 1),
-    comments    text,
+    id integer primary key,
+    column_id integer references board_columns (id) not null,
+    created_by bigint references users (id) not null,
+    changed_at timestamp not null default current_timestamp,
+    executor_id bigint references users (id),
+    sprint_id integer references sprint (id) not null,
+    title text check (char_length(title) >= 1),
+    content text check (char_length(content) >= 1),
+    comments text,
     card_count integer not null default 0,
-    created_at  timestamp not null default current_timestamp,
-    updated_at  timestamp not null default current_timestamp,
-    deadline    timestamp,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp,
+    deadline timestamp,
 
     check (title is not null or content is not null)
 );
