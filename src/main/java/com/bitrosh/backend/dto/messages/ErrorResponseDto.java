@@ -12,8 +12,6 @@ import lombok.Data;
 public class ErrorResponseDto {
     @Schema(description = "Сообщение об ошибке")
     private String message;
-    @Schema(description = "Код ошибки")
-    private Integer status;
     @Schema(description = "Время возникновения ошибки")
     private LocalDateTime timestamp;
 }

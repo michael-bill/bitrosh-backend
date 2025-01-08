@@ -21,7 +21,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatus())
                 .body(ErrorResponseDto.builder()
                         .message(ex.getMessage())
-                        .status(ex.getStatus().value())
                         .timestamp(LocalDateTime.now())
                         .build());
     }
@@ -33,7 +32,6 @@ public class GlobalExceptionHandler {
                         .message(ex.getConstraintViolations().stream()
                                 .map(ConstraintViolation::getMessage)
                                 .collect(Collectors.joining(", ")))
-                        .status(HttpStatus.BAD_REQUEST.value())
                         .timestamp(LocalDateTime.now())
                         .build(),
                 HttpStatus.BAD_REQUEST
@@ -47,7 +45,6 @@ public class GlobalExceptionHandler {
                         .message(ex.getBindingResult().getAllErrors().stream()
                                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                                 .collect(Collectors.joining(", ")))
-                        .status(HttpStatus.BAD_REQUEST.value())
                         .timestamp(LocalDateTime.now())
                         .build(),
                 HttpStatus.BAD_REQUEST
