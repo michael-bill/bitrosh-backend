@@ -7,4 +7,4 @@ create table if not exists roles
     role text not null
 );
 
-insert into roles values (1, 'ADMIN'), (2, 'USER_RW'), (3, 'USER_R');
+insert into roles values (1, 'ADMIN'), (2, 'USER_RW'), (3, 'USER_RO');
