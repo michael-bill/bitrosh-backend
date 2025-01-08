@@ -13,6 +13,7 @@ import com.bitrosh.backend.dao.repository.UserWorkspaceRepository;
 import com.bitrosh.backend.dao.repository.WorkspaceRepository;
 import com.bitrosh.backend.dto.core.WorkspaceReqDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
+import com.bitrosh.backend.dto.core.WorkspaceRoleDto;
 import com.bitrosh.backend.exception.EntityNotFoundException;
 import com.bitrosh.backend.exception.NoRulesException;
 import com.bitrosh.backend.exception.UniqueValueExistsException;
@@ -56,9 +57,11 @@ public class WorkspaceService {
                 UserWorkspace.builder()
                     .workspace(entity)
                     .user(user)
-                    .role(roleRepository.findByName("ADMIN").orElseThrow())
+                    .role(roleRepository.findByName(WorkspaceRoleDto.ADMIN.name()).orElseThrow())
                     .build());
-        return dtoMapper.map(entity, WorkspaceResDto.class);
+        WorkspaceResDto dto = dtoMapper.map(entity, WorkspaceResDto.class);
+        dto.setRole(WorkspaceRoleDto.ADMIN);
+        return dto;
     }
 
     @Transactional
@@ -77,6 +80,7 @@ public class WorkspaceService {
         Workspace workspace = workspaceRepository.findById(workspaceName).orElseThrow(
                 () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
         );
+        // моментик надо обсудить с правами на приглашения
         if (!user.isAdmin() && !userWorkspaceRepository.existsByUserIdAndWorkspaceName(user.getId(), workspaceName)) {
             throw new NoRulesException("У вас нет прав на добавление пользователей в это рабочее пространство");
         }
