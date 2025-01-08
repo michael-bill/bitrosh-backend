@@ -1,7 +1,6 @@
 package com.bitrosh.backend.cofiguration;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
