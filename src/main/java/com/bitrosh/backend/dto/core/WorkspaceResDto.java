@@ -16,4 +16,6 @@ public class WorkspaceResDto {
     private String title;
     @Schema(description = "Дата создания рабочего пространства")
     private LocalDateTime createdAt;
+    @Schema(description = "Роль в рабочем пространстве")
+    private WorkspaceRoleDto role;
 }

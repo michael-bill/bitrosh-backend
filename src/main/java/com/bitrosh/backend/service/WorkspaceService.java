@@ -7,10 +7,15 @@ import com.bitrosh.backend.dao.entity.Role;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dao.entity.UserWorkspace;
 import com.bitrosh.backend.dao.entity.Workspace;
+import com.bitrosh.backend.dao.repository.RoleRepository;
+import com.bitrosh.backend.dao.repository.UserRepository;
 import com.bitrosh.backend.dao.repository.UserWorkspaceRepository;
 import com.bitrosh.backend.dao.repository.WorkspaceRepository;
 import com.bitrosh.backend.dto.core.WorkspaceReqDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
+import com.bitrosh.backend.exception.EntityNotFoundException;
+import com.bitrosh.backend.exception.NoRulesException;
+import com.bitrosh.backend.exception.UniqueValueExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +28,8 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final UserWorkspaceRepository userWorkspaceRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final DtoMapper dtoMapper;
 
     public Page<WorkspaceResDto> getAllWorkspaces(User user, Pageable pageable) {
@@ -39,13 +46,51 @@ public class WorkspaceService {
 
     @Transactional
     public WorkspaceResDto create(User user, WorkspaceReqDto workspace) {
+        if (workspaceRepository.existsByName(workspace.getName())) {
+            throw new UniqueValueExistsException("Рабочее пространство с таким именем уже существует");
+        }
         Workspace entity = dtoMapper.map(workspace, Workspace.class);
         entity.setCreatedAt(LocalDateTime.now());
         entity = workspaceRepository.save(entity);
-        userWorkspaceRepository.save(UserWorkspace.builder()
+        userWorkspaceRepository.save(
+                UserWorkspace.builder()
                     .workspace(entity)
                     .user(user)
+                    .role(roleRepository.findByName("ADMIN").orElseThrow())
                     .build());
         return dtoMapper.map(entity, WorkspaceResDto.class);
+    }
+
+    @Transactional
+    public void delete(User user, String workspaceName) {
+        Workspace workspace = workspaceRepository.findById(workspaceName).orElseThrow(
+                () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
+        );
+        if (!user.isAdmin() && !userWorkspaceRepository.existsByUserIdAndWorkspaceName(user.getId(), workspaceName)) {
+            throw new NoRulesException("У вас нет прав на удаление рабочего пространства");
+        }
+        userWorkspaceRepository.deleteByWorkspaceName(workspaceName);
+        workspaceRepository.delete(workspace);
+    }
+
+    public void inviteUser(User user, String workspaceName, String username, String roleName) {
+        Workspace workspace = workspaceRepository.findById(workspaceName).orElseThrow(
+                () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
+        );
+        if (!user.isAdmin() && !userWorkspaceRepository.existsByUserIdAndWorkspaceName(user.getId(), workspaceName)) {
+            throw new NoRulesException("У вас нет прав на добавление пользователей в это рабочее пространство");
+        }
+        User invitedUser = userRepository.findByUsername(username).orElseThrow(
+                () -> new EntityNotFoundException("Пользователь с именем " + username + " не найден")
+        );
+        Role role = roleRepository.findByName(roleName).orElseThrow(
+                () -> new EntityNotFoundException("Роль с именем " + roleName + " не найдена")
+        );
+        userWorkspaceRepository.save(
+                UserWorkspace.builder()
+                    .workspace(workspace)
+                    .user(invitedUser)
+                    .role(role)
+                    .build());
     }
 }

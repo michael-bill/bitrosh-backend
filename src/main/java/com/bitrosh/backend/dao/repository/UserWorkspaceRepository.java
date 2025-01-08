@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserWorkspaceRepository extends JpaRepository<UserWorkspace, UserWorkspaceId> {
+    boolean existsByUserIdAndWorkspaceName(Long userId, String workspaceName);
+    void deleteByWorkspaceName(String workspaceName);
 }

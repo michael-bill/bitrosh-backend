@@ -3,6 +3,7 @@ package com.bitrosh.backend.controller;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.WorkspaceReqDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
+import com.bitrosh.backend.dto.core.WorkspaceRoleDto;
 import com.bitrosh.backend.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,13 +42,33 @@ public class WorkspaceController {
         return workspaceService.getAllWorkspaces(user, PageRequest.of(page, size));
     }
 
-    @Operation(summary = "Создать рабочее пространство (пока не работает)", hidden = true)
+    @Operation(summary = "Создать рабочее пространство")
     @PostMapping("/create")
     public WorkspaceResDto createWorkspace(
             @AuthenticationPrincipal User user,
             @RequestBody WorkspaceReqDto workspace
     ) {
         return workspaceService.create(user, workspace);
+    }
+
+    @Operation(summary = "Удалить рабочее пространство")
+    @DeleteMapping("/delete")
+    public void deleteWorkspace(
+            @AuthenticationPrincipal User user,
+            @RequestParam String workspaceName
+    ) {
+        workspaceService.delete(user, workspaceName);
+    }
+
+    @Operation(summary = "Добавить пользователя в рабочее пространство")
+    @PostMapping("/invite")
+    public void inviteUser(
+            @AuthenticationPrincipal User user,
+            @RequestParam String workspaceName,
+            @RequestParam String username,
+            @RequestParam WorkspaceRoleDto role
+    ) {
+        workspaceService.inviteUser(user, workspaceName, username, role.name());
     }
 
 }
