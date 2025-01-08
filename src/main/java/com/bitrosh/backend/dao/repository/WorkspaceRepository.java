@@ -16,7 +16,7 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, String> {
             "where uw.user.id = :userId")
     Page<WorkspaceProjection> findAllWorkspacesByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("select w.name as name, w.title as title, w.createdAt as createdAt, uw.role.name as role " +
+    @Query("select w.name as name, w.title as title, w.createdAt as createdAt, 'ADMIN' as role " +
             "from Workspace w join UserWorkspace uw on w.name = uw.workspace.id")
     Page<WorkspaceProjection> findAllWorkspaces(Pageable pageable);
 

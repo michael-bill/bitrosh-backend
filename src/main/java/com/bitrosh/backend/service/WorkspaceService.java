@@ -97,4 +97,12 @@ public class WorkspaceService {
                     .role(role)
                     .build());
     }
+
+    public void setCurrentWorkspace(User user, String workspaceName) {
+        Workspace workspace = workspaceRepository.findById(workspaceName).orElseThrow(
+                () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
+        );
+        user.setCurrentWorkspace(workspace);
+        userRepository.save(user);
+    }
 }

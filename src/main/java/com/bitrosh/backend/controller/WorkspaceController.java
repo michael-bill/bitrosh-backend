@@ -71,4 +71,13 @@ public class WorkspaceController {
         workspaceService.inviteUser(user, workspaceName, username, role.name());
     }
 
+    @Operation(summary = "Установить текущее рабочее пространство")
+    @PostMapping("/set-current")
+    public void setCurrentWorkspace(
+            @AuthenticationPrincipal User user,
+            @RequestParam String workspaceName
+    ) {
+        workspaceService.setCurrentWorkspace(user, workspaceName);
+    }
+
 }
