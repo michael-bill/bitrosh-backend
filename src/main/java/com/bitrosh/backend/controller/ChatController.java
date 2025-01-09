@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat")
-@Tag(name = "Работа с чатами")
+@Tag(name = "Работа с чатами (Саня, я пока не тестировал, что-то может не работать)")
 public class ChatController {
 
     private final ChatService chatService;
