@@ -13,6 +13,8 @@ import lombok.Data;
 public class JwtAuthDto {
     @Schema(description = "Токен доступа", example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
     private String token;
+    @Schema(description = "Id пользователя", example = "1")
+    private Long userId;
     @Schema(description = "Имя пользователя", example = "John")
     private String username;
     @Schema(description = "Роль в системе", example = "USER")

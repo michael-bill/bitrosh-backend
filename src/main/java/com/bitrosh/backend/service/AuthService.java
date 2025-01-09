@@ -48,6 +48,7 @@ public class AuthService {
         String jwt = jwtService.generateToken(user);
         return JwtAuthDto.builder()
                 .token(jwt)
+                .userId(user.getId())
                 .username(request.getUsername())
                 .role(user.getRole().name())
                 .currentWorkspace(dtoMapper.map(user.getCurrentWorkspace(), WorkspaceResDto.class))
@@ -72,6 +73,7 @@ public class AuthService {
         String jwt = jwtService.generateToken(user);
         return JwtAuthDto.builder()
                 .token(jwt)
+                .userId(user.getId())
                 .username(request.getUsername())
                 .role(user.getRole().name())
                 .currentWorkspace(dtoMapper.map(user.getCurrentWorkspace(), WorkspaceResDto.class))

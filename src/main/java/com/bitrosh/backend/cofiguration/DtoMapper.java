@@ -23,4 +23,9 @@ public class DtoMapper {
                 .map(entity -> map(entity, destinationType)).toList();
         return new PageImpl<>(destinationList, sourcePage.getPageable(), sourcePage.getTotalElements());
     }
+
+    public <S, D> List<D> map(List<S> sourceList, Class<D> destinationType) {
+        return sourceList.stream()
+                .map(entity -> map(entity, destinationType)).toList();
+    }
 }

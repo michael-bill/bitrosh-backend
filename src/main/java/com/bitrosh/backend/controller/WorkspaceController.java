@@ -3,7 +3,7 @@ package com.bitrosh.backend.controller;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.WorkspaceReqDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
-import com.bitrosh.backend.dto.core.WorkspaceRoleDto;
+import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
 import com.bitrosh.backend.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -61,7 +61,7 @@ public class WorkspaceController {
     @DeleteMapping("/delete")
     public void deleteWorkspace(
             @AuthenticationPrincipal User user,
-            @RequestParam String workspaceName
+            @RequestParam("workspace_name") String workspaceName
     ) {
         workspaceService.delete(user, workspaceName);
     }
@@ -70,9 +70,9 @@ public class WorkspaceController {
     @PostMapping("/invite")
     public void inviteUser(
             @AuthenticationPrincipal User user,
-            @RequestParam String workspaceName,
-            @RequestParam String username,
-            @RequestParam WorkspaceRoleDto role
+            @RequestParam("workspace_name") String workspaceName,
+            @RequestParam("username") String username,
+            @RequestParam("role") WorkspaceOrChatRoleDto role
     ) {
         workspaceService.inviteUser(user, workspaceName, username, role.name());
     }
@@ -81,7 +81,7 @@ public class WorkspaceController {
     @PostMapping("/set-current")
     public void setCurrentWorkspace(
             @AuthenticationPrincipal User user,
-            @RequestParam String workspaceName
+            @RequestParam("workspace_name") String workspaceName
     ) {
         workspaceService.setCurrentWorkspace(user, workspaceName);
     }

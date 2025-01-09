@@ -21,6 +21,8 @@
     <include file="sql/table/messages.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/poll.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/card_comments.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/folder.sql" relativeToChangelogFile="true"/>
+    <include file="sql/table/chat_folder.sql" relativeToChangelogFile="true"/>
 
     <include file="sql/data/add_start_data.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

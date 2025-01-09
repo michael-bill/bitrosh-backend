@@ -13,7 +13,7 @@ import com.bitrosh.backend.dao.repository.UserWorkspaceRepository;
 import com.bitrosh.backend.dao.repository.WorkspaceRepository;
 import com.bitrosh.backend.dto.core.WorkspaceReqDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
-import com.bitrosh.backend.dto.core.WorkspaceRoleDto;
+import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
 import com.bitrosh.backend.exception.EntityNotFoundException;
 import com.bitrosh.backend.exception.NoRulesException;
 import com.bitrosh.backend.exception.UniqueValueExistsException;
@@ -31,6 +31,7 @@ public class WorkspaceService {
     private final UserWorkspaceRepository userWorkspaceRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final DtoMapper dtoMapper;
 
     public Page<WorkspaceResDto> getAllWorkspaces(User user, Pageable pageable) {
@@ -57,10 +58,10 @@ public class WorkspaceService {
                 UserWorkspace.builder()
                     .workspace(entity)
                     .user(user)
-                    .role(roleRepository.findByName(WorkspaceRoleDto.ADMIN.name()).orElseThrow())
+                    .role(roleService.getCachedByName(WorkspaceOrChatRoleDto.ADMIN.name()))
                     .build());
         WorkspaceResDto dto = dtoMapper.map(entity, WorkspaceResDto.class);
-        dto.setRole(WorkspaceRoleDto.ADMIN);
+        dto.setRole(WorkspaceOrChatRoleDto.ADMIN);
         return dto;
     }
 
@@ -69,11 +70,7 @@ public class WorkspaceService {
         Workspace workspace = workspaceRepository.findById(workspaceName).orElseThrow(
                 () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
         );
-        if (!user.isAdmin() && !userWorkspaceRepository.existsByUserIdAndWorkspaceNameAndRoleName(
-                user.getId(),
-                workspaceName,
-                WorkspaceRoleDto.ADMIN.name())
-        ) {
+        if (hasNoRulesForWorkspace(user, workspaceName, WorkspaceOrChatRoleDto.ADMIN.name())) {
             throw new NoRulesException("У вас нет прав на удаление рабочего пространства");
         }
         // Удаление рабочего пространства каскадное, то есть оно сносит все связанные с ним сущности
@@ -87,7 +84,7 @@ public class WorkspaceService {
                 () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
         );
         // моментик надо обсудить с правами на приглашения
-        if (!user.isAdmin() && !userWorkspaceRepository.existsByUserIdAndWorkspaceName(user.getId(), workspaceName)) {
+        if (hasNoRulesForWorkspace(user, workspaceName)) {
             throw new NoRulesException("У вас нет прав на добавление пользователей в это рабочее пространство");
         }
         User invitedUser = userRepository.findByUsername(username).orElseThrow(
@@ -102,6 +99,19 @@ public class WorkspaceService {
                     .user(invitedUser)
                     .role(role)
                     .build());
+    }
+
+    public boolean hasNoRulesForWorkspace(User user, String workspaceName) {
+        return !user.isAdmin() &&
+                !userWorkspaceRepository.existsByUserIdAndWorkspaceName(user.getId(), workspaceName);
+    }
+
+    public boolean hasNoRulesForWorkspace(User user, String workspaceName, String roleName) {
+        // вот тут тож могут быть проблемы, мб надо будет подправить
+        return user.isAdmin() ||
+                userWorkspaceRepository.existsByUserIdAndWorkspaceNameAndRoleName(
+                        user.getId(), workspaceName, roleName
+                );
     }
 
     public void setCurrentWorkspace(User user, String workspaceName) {

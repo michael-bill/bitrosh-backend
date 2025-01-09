@@ -7,7 +7,7 @@ create table if not exists chat_user
     chat_id bigint not null references chat (id) on delete cascade,
     user_id bigint references users (id) not null,
     join_at timestamp not null,
-    role varchar(16) not null
+    role_id bigint references roles (id) not null
 );
 
 create index idx_chat_user_chat_id on chat_user(chat_id);
