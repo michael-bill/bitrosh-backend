@@ -51,7 +51,13 @@ public class WorkspaceController {
         return workspaceService.create(user, workspace);
     }
 
-    @Operation(summary = "Удалить рабочее пространство")
+    @Operation(
+            summary = "Удалить рабочее пространство",
+            description = """
+                Удаляет рабочее пространство и все связанные с ним сущности
+                (рабочее простраснтво, папки, чаты, сообщения, канбан доски).
+                Действие доступно только администраторам рабочего пространства."""
+    )
     @DeleteMapping("/delete")
     public void deleteWorkspace(
             @AuthenticationPrincipal User user,
@@ -71,7 +77,7 @@ public class WorkspaceController {
         workspaceService.inviteUser(user, workspaceName, username, role.name());
     }
 
-    @Operation(summary = "Установить текущее рабочее пространство")
+    @Operation(summary = "Установить текущее рабочее пространство пользователю")
     @PostMapping("/set-current")
     public void setCurrentWorkspace(
             @AuthenticationPrincipal User user,

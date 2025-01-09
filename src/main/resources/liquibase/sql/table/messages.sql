@@ -4,7 +4,7 @@
 create table if not exists messages
 (
     id bigserial primary key,
-    conversation_id bigint references chat (id) not null,
+    conversation_id bigint not null references chat (id) on delete cascade,
     sender_id bigint references users (id) not null,
     card_id bigint references card (id),
     text_content text check (char_length(text_content) >= 1),

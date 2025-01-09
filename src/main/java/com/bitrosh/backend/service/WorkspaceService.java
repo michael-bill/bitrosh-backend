@@ -69,13 +69,19 @@ public class WorkspaceService {
         Workspace workspace = workspaceRepository.findById(workspaceName).orElseThrow(
                 () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
         );
-        if (!user.isAdmin() && !userWorkspaceRepository.existsByUserIdAndWorkspaceName(user.getId(), workspaceName)) {
+        if (!user.isAdmin() && !userWorkspaceRepository.existsByUserIdAndWorkspaceNameAndRoleName(
+                user.getId(),
+                workspaceName,
+                WorkspaceRoleDto.ADMIN.name())
+        ) {
             throw new NoRulesException("У вас нет прав на удаление рабочего пространства");
         }
-        userWorkspaceRepository.deleteByWorkspaceName(workspaceName);
+        // Удаление рабочего пространства каскадное, то есть оно сносит все связанные с ним сущности
+        // А именно: рабочее простраснтво, папки, чаты, сообщения, канбан доски
         workspaceRepository.delete(workspace);
     }
 
+    @Transactional
     public void inviteUser(User user, String workspaceName, String username, String roleName) {
         Workspace workspace = workspaceRepository.findById(workspaceName).orElseThrow(
                 () -> new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено")
