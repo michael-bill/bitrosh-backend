@@ -4,6 +4,7 @@ import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
+import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
 import com.bitrosh.backend.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,12 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat")
-@Tag(name = "Работа с чатами (Саня, я пока не тестировал, что-то может не работать)")
+@Tag(name = "Работа с чатами")
 public class ChatController {
 
     private final ChatService chatService;
 
-    @Operation(summary = "Получить список моих чатов (в разработке)")
+    @Operation(summary = "Получить список моих чатов")
     @GetMapping("/my")
     public Page<ChatResDto> getMyChats(
             @AuthenticationPrincipal User user,
@@ -40,8 +41,7 @@ public class ChatController {
             @RequestParam(defaultValue = "10")
             Integer size
     ) {
-        // TODO:
-        throw new UnsupportedOperationException("Падажи брат, ещё работаем");
+        return chatService.getMyChats(user, workspaceName, PageRequest.of(page, size));
     }
 
     @Operation(summary = "Создание приватного чата (чат с 1 пользователем)")
@@ -68,9 +68,9 @@ public class ChatController {
             @AuthenticationPrincipal User user,
             @RequestParam("user_id") Long userId,
             @RequestParam("chat_id") Long chatId,
-            @RequestParam("role") String role
+            @RequestParam("role") WorkspaceOrChatRoleDto role
     ) {
-        return chatService.addUserToGroupChat(user, userId, chatId, role);
+        return chatService.addUserToGroupChat(user, userId, chatId, role.name());
     }
 
     @Operation(summary = "Удалить пользователя из группового чата")

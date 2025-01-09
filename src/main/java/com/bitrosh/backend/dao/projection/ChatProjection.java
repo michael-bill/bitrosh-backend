@@ -5,12 +5,13 @@ import java.util.List;
 
 public interface ChatProjection {
     Long getId();
-    WorkspaceProjection getWorkspace();
     String getType();
     String getTitle();
     LocalDateTime getCreatedAt();
     String getCreatedBy();
-    String getLastMessage();
-    List<FolderProjection> getFolders();
-    List<UserProjection> getParticipants();
+    String getLastMessageText();
+    LocalDateTime getLastMessageTime();
+    Long getLastMessageSenderId();
+    String getFoldersJsonArray(); // Postgres JSONB можно обрабатывать как String
+    String getParticipantsJsonArray(); // Postgres JSONB можно обрабатывать как String
 }

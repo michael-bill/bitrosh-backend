@@ -7,7 +7,7 @@ create table if not exists chat
     workspace_id varchar(128) not null references workspace (name) on delete cascade,
     created_by bigint references users (id) not null,
     created_at timestamp not null,
-    title varchar(64) check (char_length(title) >= 1),
+    title text check (char_length(title) >= 1),
     type text not null
 );
 

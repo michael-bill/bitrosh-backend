@@ -4,10 +4,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 			http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
-    <include file="sql/function/card_count.sql" relativeToChangelogFile="true"/>
-    <include file="sql/function/log_card_move.sql" relativeToChangelogFile="true"/>
-    <include file="sql/function/mark_message_as_read.sql" relativeToChangelogFile="true"/>
-    <include file="sql/function/update_updated_at.sql" relativeToChangelogFile="true"/>
+    <include file="sql/trigger/card_count.sql" relativeToChangelogFile="true"/>
+    <include file="sql/trigger/log_card_move.sql" relativeToChangelogFile="true"/>
+    <include file="sql/trigger/update_updated_at.sql" relativeToChangelogFile="true"/>
+
+    <include file="sql/function/mark_message_as_read_f.sql" relativeToChangelogFile="true"/>
+    <include file="sql/function/find_chats_by_user_and_workspace_f.sql" relativeToChangelogFile="true"/>
 
     <include file="sql/table/workspace.sql" relativeToChangelogFile="true"/>
     <include file="sql/table/users.sql" relativeToChangelogFile="true"/>

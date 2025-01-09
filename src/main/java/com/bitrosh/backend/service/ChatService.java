@@ -10,12 +10,14 @@ import com.bitrosh.backend.dao.entity.ChatUser;
 import com.bitrosh.backend.dao.entity.Role;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dao.entity.Workspace;
+import com.bitrosh.backend.dao.projection.ChatProjection;
 import com.bitrosh.backend.dao.repository.ChatRepository;
 import com.bitrosh.backend.dao.repository.ChatUserRepository;
 import com.bitrosh.backend.dao.repository.RoleRepository;
 import com.bitrosh.backend.dao.repository.UserRepository;
 import com.bitrosh.backend.dao.repository.WorkspaceRepository;
 import com.bitrosh.backend.dto.core.ChatResDto;
+import com.bitrosh.backend.dto.core.FolderResDto;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
 import com.bitrosh.backend.dto.core.UserInfoDto;
@@ -24,8 +26,12 @@ import com.bitrosh.backend.dto.core.WorkspaceResDto;
 import com.bitrosh.backend.exception.EntityNotFoundException;
 import com.bitrosh.backend.exception.IllegalOperationException;
 import com.bitrosh.backend.exception.NoRulesException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +48,50 @@ public class ChatService {
     private final ChatUserRepository chatUserRepository;
     private final RoleRepository roleRepository;
     private final DtoMapper dtoMapper;
+    private final ObjectMapper objectMapper;
 
+    // это пиздец
     public Page<ChatResDto> getMyChats(User user, String workspaceName, Pageable pageable) {
-        return null;
+        if (!workspaceRepository.existsByName(workspaceName)) {
+            throw new EntityNotFoundException("Рабочее пространство с таким name не найдено");
+        }
+        if (workspaceService.hasNoRulesForWorkspace(user, workspaceName)) {
+            throw new NoRulesException("У вас нет прав на работу с данным рабочим пространством");
+        }
+        Page<ChatProjection> page = chatRepository.findChatsByUserAndWorkspace(
+                user.getId(),
+                workspaceName,
+                pageable
+        );
+        return new PageImpl<>(
+                page.stream().map(x -> {
+                    try {
+                        return ChatResDto.builder()
+                                .id(x.getId())
+                                .type(x.getType())
+                                .title(x.getTitle())
+                                .createdAt(x.getCreatedAt())
+                                .createdBy(x.getCreatedBy())
+                                .lastMessageText(x.getLastMessageText())
+                                .lastMessageTime(x.getLastMessageTime())
+                                .lastMessageSenderId(x.getLastMessageSenderId())
+                                .folders(
+                                        x.getFoldersJsonArray() == null ? null :
+                                        objectMapper.readValue(x.getFoldersJsonArray(), new TypeReference<>() { })
+                                )
+                                .participants(
+                                        x.getParticipantsJsonArray() == null ? null :
+                                        objectMapper.readValue(x.getParticipantsJsonArray(), new TypeReference<>() { })
+                                )
+                                .build();
+                    } catch (JsonProcessingException e) {
+                        // гипотетически, этого не должно произойти
+                        throw new RuntimeException(e);
+                    }
+                }).toList(),
+                page.getPageable(),
+                page.getTotalElements()
+        );
     }
 
     @Transactional
@@ -58,6 +105,12 @@ public class ChatService {
 
         User userTwo = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким id не найден"));
+
+        if (workspaceService.hasNoRulesForWorkspace(userTwo, dto.getWorkspaceName())) {
+            throw new NoRulesException(
+                    "Пользователя, с которым вы пытаетесь создать чат, нет в этом рабочем пространстве"
+            );
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -110,6 +163,15 @@ public class ChatService {
 
         List<User> users = userRepository.findAllById(dto.getUserIds());
 
+        users.forEach(u -> {
+            if (workspaceService.hasNoRulesForWorkspace(u, dto.getWorkspaceName())) {
+                throw new NoRulesException(
+                        "У пользователя с id = " + u.getId() + ", с которым вы пытаетесь создать чат, " +
+                        "нет в этом рабочем пространстве"
+                );
+            }
+        });
+
         LocalDateTime now = LocalDateTime.now();
 
         Chat chat = Chat.builder()
@@ -160,6 +222,12 @@ public class ChatService {
         // Пользователь должен меть права хотяб на чтение рабочего пространства
         if (workspaceService.hasNoRulesForWorkspace(user, chat.getWorkspace().getName())) {
             throw new NoRulesException("У вас нет прав на работу с этим рабочим пространством");
+        }
+
+        if (workspaceService.hasNoRulesForWorkspace(invitedUser, chat.getWorkspace().getName())) {
+            throw new NoRulesException(
+                    "Пользователя, которого вы патетесь добавить в чат, нет в этом рабочем пространстве"
+            );
         }
 
         if (!user.isAdmin()) {
