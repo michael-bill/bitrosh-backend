@@ -3,6 +3,7 @@ package com.bitrosh.backend.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.bitrosh.backend.cofiguration.DtoMapper;
 import com.bitrosh.backend.dao.entity.Chat;
@@ -17,7 +18,7 @@ import com.bitrosh.backend.dao.repository.RoleRepository;
 import com.bitrosh.backend.dao.repository.UserRepository;
 import com.bitrosh.backend.dao.repository.WorkspaceRepository;
 import com.bitrosh.backend.dto.core.ChatResDto;
-import com.bitrosh.backend.dto.core.FolderResDto;
+import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
 import com.bitrosh.backend.dto.core.UserInfoDto;
@@ -88,14 +89,14 @@ public class ChatService {
                         // гипотетически, этого не должно произойти
                         throw new RuntimeException(e);
                     }
-                }).toList(),
+                }).collect(Collectors.toList()),
                 page.getPageable(),
                 page.getTotalElements()
         );
     }
 
     @Transactional
-    public ChatResDto createPrivateChat(User user, PrivateChatCreationDto dto) {
+    public ChatResDtoWithWorkspace createPrivateChat(User user, PrivateChatCreationDto dto) {
         Workspace workspace = workspaceRepository.findById(dto.getWorkspaceName())
                 .orElseThrow(() -> new EntityNotFoundException("Рабочее пространство не найдено"));
 
@@ -139,7 +140,7 @@ public class ChatService {
         chatUserRepository.save(chatUserOne);
         chatUserRepository.save(chatUserTwo);
 
-        return ChatResDto.builder()
+        return ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(workspace, WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -153,7 +154,7 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResDto createGroupChat(User user, GroupChatCreationDto dto) {
+    public ChatResDtoWithWorkspace createGroupChat(User user, GroupChatCreationDto dto) {
         Workspace workspace = workspaceRepository.findById(dto.getWorkspaceName())
                 .orElseThrow(() -> new EntityNotFoundException("Рабочее пространство не найдено"));
 
@@ -195,7 +196,7 @@ public class ChatService {
 
         chatUserRepository.saveAll(chatUsers);
 
-        return ChatResDto.builder()
+        return ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(workspace, WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -207,7 +208,7 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResDto addUserToGroupChat(User user, Long userId, Long chatId, String role) {
+    public ChatResDtoWithWorkspace addUserToGroupChat(User user, Long userId, Long chatId, String role) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Чат с таким id не найден"));
         Role roleEntity = roleRepository.findByName(role)
@@ -253,7 +254,7 @@ public class ChatService {
                 .build();
         chatUserRepository.save(newChatUser);
 
-        return ChatResDto.builder()
+        return ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -265,7 +266,7 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResDto removeUserFromGroupChat(User user, Long userId, Long chatId) {
+    public ChatResDtoWithWorkspace removeUserFromGroupChat(User user, Long userId, Long chatId) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Чат с таким id не найден"));
         userRepository.findById(userId)
@@ -293,7 +294,7 @@ public class ChatService {
 
         chatUserRepository.deleteByChatIdAndUserId(chatId, userId);
 
-        return ChatResDto.builder()
+        return ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -340,7 +341,7 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResDto renameGroupChat(User user, Long chatId, String newTitle) {
+    public ChatResDtoWithWorkspace renameGroupChat(User user, Long chatId, String newTitle) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Чат с таким id не найден"));
 
@@ -367,7 +368,7 @@ public class ChatService {
         chat.setTitle(newTitle);
         chatRepository.save(chat);
 
-        return ChatResDto.builder()
+        return ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
                 .type(chat.getType().name())

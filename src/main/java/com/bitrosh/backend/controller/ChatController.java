@@ -2,6 +2,7 @@ package com.bitrosh.backend.controller;
 
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.ChatResDto;
+import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
 import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
@@ -46,7 +47,7 @@ public class ChatController {
 
     @Operation(summary = "Создание приватного чата (чат с 1 пользователем)")
     @PostMapping("/create/private")
-    public ChatResDto createPrivateChat(
+    public ChatResDtoWithWorkspace createPrivateChat(
             @AuthenticationPrincipal User user,
             @RequestBody PrivateChatCreationDto dto
     ) {
@@ -55,7 +56,7 @@ public class ChatController {
 
     @Operation(summary = "Создание группового чата (чат с несколькими пользователями)")
     @PostMapping("/create/group")
-    public ChatResDto createGroupChat(
+    public ChatResDtoWithWorkspace createGroupChat(
             @AuthenticationPrincipal User user,
             @RequestBody GroupChatCreationDto dto
     ) {
@@ -64,7 +65,7 @@ public class ChatController {
 
     @Operation(summary = "Добавить пользователя в группой чат")
     @PostMapping("/add/user")
-    public ChatResDto addUserToGroupChat(
+    public ChatResDtoWithWorkspace addUserToGroupChat(
             @AuthenticationPrincipal User user,
             @RequestParam("user_id") Long userId,
             @RequestParam("chat_id") Long chatId,
@@ -75,7 +76,7 @@ public class ChatController {
 
     @Operation(summary = "Удалить пользователя из группового чата")
     @PostMapping("/remove/user")
-    public ChatResDto removeUserFromGroupChat(
+    public ChatResDtoWithWorkspace removeUserFromGroupChat(
             @AuthenticationPrincipal User user,
             @RequestParam("user_id") Long userId,
             @RequestParam("chat_id") Long chatId
@@ -103,7 +104,7 @@ public class ChatController {
 
     @Operation(summary = "Переименовать групповой чат")
     @PostMapping("/rename")
-    public ChatResDto renameGroupChat(
+    public ChatResDtoWithWorkspace renameGroupChat(
             @AuthenticationPrincipal User user,
             @RequestParam("chat_id") Long chatId,
             @RequestBody String newTitle

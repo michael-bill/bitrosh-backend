@@ -4,21 +4,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Data
-@Builder
+@Getter
+@Setter
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 @Schema(description = "Ответ с информацией о чате")
 public class ChatResDto {
     @Schema(description = "Id чата", example = "1")
     private Long id;
-    @Schema(description = "Рабочее пространство с вашей ролью", example = "workspace1")
-    private WorkspaceResDto workspace;
     @Schema(description = "Тип чата", example = "PRIVATE")
     private String type;
     @Schema(description = "Название чата", example = "My Chat")
