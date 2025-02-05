@@ -31,9 +31,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,47 +49,42 @@ public class ChatService {
     private final ObjectMapper objectMapper;
 
     // это пиздец
-    public Page<ChatResDto> getMyChats(User user, String workspaceName, Pageable pageable) {
+    public List<ChatResDto> getMyChats(User user, String workspaceName) {
         if (!workspaceRepository.existsByName(workspaceName)) {
             throw new EntityNotFoundException("Рабочее пространство с таким name не найдено");
         }
         if (workspaceService.hasNoRulesForWorkspace(user, workspaceName)) {
             throw new NoRulesException("У вас нет прав на работу с данным рабочим пространством");
         }
-        Page<ChatProjection> page = chatRepository.findChatsByUserAndWorkspace(
+        List<ChatProjection> chats = chatRepository.findChatsByUserAndWorkspace(
                 user.getId(),
-                workspaceName,
-                pageable
+                workspaceName
         );
-        return new PageImpl<>(
-                page.stream().map(x -> {
-                    try {
-                        return ChatResDto.builder()
-                                .id(x.getId())
-                                .type(x.getType())
-                                .title(x.getTitle())
-                                .createdAt(x.getCreatedAt())
-                                .createdBy(x.getCreatedBy())
-                                .lastMessageText(x.getLastMessageText())
-                                .lastMessageTime(x.getLastMessageTime())
-                                .lastMessageSenderId(x.getLastMessageSenderId())
-                                .folders(
-                                        x.getFoldersJsonArray() == null ? null :
+        return chats.stream().map(x -> {
+            try {
+                return ChatResDto.builder()
+                        .id(x.getId())
+                        .type(x.getType())
+                        .title(x.getTitle())
+                        .createdAt(x.getCreatedAt())
+                        .createdBy(x.getCreatedBy())
+                        .lastMessageText(x.getLastMessageText())
+                        .lastMessageTime(x.getLastMessageTime())
+                        .lastMessageSenderId(x.getLastMessageSenderId())
+                        .folders(
+                                x.getFoldersJsonArray() == null ? null :
                                         objectMapper.readValue(x.getFoldersJsonArray(), new TypeReference<>() { })
-                                )
-                                .participants(
-                                        x.getParticipantsJsonArray() == null ? null :
+                        )
+                        .participants(
+                                x.getParticipantsJsonArray() == null ? null :
                                         objectMapper.readValue(x.getParticipantsJsonArray(), new TypeReference<>() { })
-                                )
-                                .build();
-                    } catch (JsonProcessingException e) {
-                        // гипотетически, этого не должно произойти
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toList()),
-                page.getPageable(),
-                page.getTotalElements()
-        );
+                        )
+                        .build();
+            } catch (JsonProcessingException e) {
+                // гипотетически, этого не должно произойти
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
     }
 
     @Transactional

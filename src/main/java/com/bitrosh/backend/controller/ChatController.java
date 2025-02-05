@@ -1,5 +1,7 @@
 package com.bitrosh.backend.controller;
 
+import java.util.List;
+
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
@@ -8,11 +10,8 @@ import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
 import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
 import com.bitrosh.backend.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,17 +31,11 @@ public class ChatController {
 
     @Operation(summary = "Получить список моих чатов")
     @GetMapping("/my")
-    public Page<ChatResDto> getMyChats(
+    public List<ChatResDto> getMyChats(
             @AuthenticationPrincipal User user,
-            @RequestParam(value = "workspace_name") String workspaceName,
-            @Parameter(description = "Номер страницы (начинается с 0)")
-            @RequestParam(defaultValue = "0")
-            Integer page,
-            @Parameter(description = "Количество элементов на странице")
-            @RequestParam(defaultValue = "10")
-            Integer size
+            @RequestParam(value = "workspace_name") String workspaceName
     ) {
-        return chatService.getMyChats(user, workspaceName, PageRequest.of(page, size));
+        return chatService.getMyChats(user, workspaceName);
     }
 
     @Operation(summary = "Создание приватного чата (чат с 1 пользователем)")
