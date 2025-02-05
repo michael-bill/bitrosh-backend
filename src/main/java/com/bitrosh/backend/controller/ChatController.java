@@ -107,7 +107,7 @@ public class ChatController {
     public ChatResDtoWithWorkspace renameGroupChat(
             @AuthenticationPrincipal User user,
             @RequestParam("chat_id") Long chatId,
-            @RequestBody String newTitle
+            @RequestParam("new_title") String newTitle
     ) {
         return chatService.renameGroupChat(user, chatId, newTitle);
     }
