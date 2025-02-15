@@ -47,6 +47,7 @@ insert into folder (user_id, name, workspace_id) values
 insert into chat (workspace_id, created_by, created_at, title, type) values
 ('ws1', 1, '2024-01-02 10:00:00', 'Общий чат', 'GROUP'),
 ('ws1', 2, '2024-01-03 11:00:00', 'Технические вопросы', 'CHANNEL'),
+('ws1', 3, '2024-01-03 11:30:00', null, 'PRIVATE'),
 ('ws2', 4, '2024-02-02 12:00:00', 'Основной чат', 'GROUP');
 
 -- 9. Связь пользователей с чатами
@@ -54,7 +55,8 @@ insert into chat_user (chat_id, user_id, join_at, role_id) values
 (1, 1, '2024-01-02 10:00:00', 1),
 (1, 2, '2024-01-02 10:05:00', 2),
 (2, 2, '2024-01-03 11:00:00', 1),
-(3, 4, '2024-02-02 12:00:00', 1);
+(3, 1, '2024-02-02 12:00:00', 1),
+(3, 2, '2024-02-02 12:00:00', 1);
 
 -- 10. Сообщения
 insert into messages (chat_id, sender_id, text_content, created_at) values

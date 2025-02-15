@@ -9,6 +9,7 @@ import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
 import com.bitrosh.backend.dto.core.UserInfoDto;
 import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
+import com.bitrosh.backend.dto.types.BooleanDto;
 import com.bitrosh.backend.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -114,6 +115,19 @@ public class ChatController {
             @RequestParam("workspace_name") String workspaceName
     ) {
         return chatService.getUsersWithoutDirectChat(user, workspaceName);
+    }
+
+    @Operation(summary = "Есть ли у пользователя приватный чат с заданным " +
+            "пользователем в заданном рабочем пространстве")
+    @GetMapping("/{workspace_name}/users/has-private-chat")
+    public BooleanDto hasPrivateChat(
+            @AuthenticationPrincipal User user,
+            @RequestParam("user_id") Long userId,
+            @RequestParam("workspace_name") String workspaceName
+    ) {
+        return BooleanDto.builder()
+                .value(chatService.isPrivateChatAlreadyExists(user, userId, workspaceName))
+                .build();
     }
 
 }

@@ -27,6 +27,7 @@ import com.bitrosh.backend.dto.core.WorkspaceResDto;
 import com.bitrosh.backend.exception.EntityNotFoundException;
 import com.bitrosh.backend.exception.IllegalOperationException;
 import com.bitrosh.backend.exception.NoRulesException;
+import com.bitrosh.backend.exception.UniqueValueExistsException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -105,6 +106,12 @@ public class ChatService {
             );
         }
 
+        if (isPrivateChatAlreadyExists(user, dto.getUserId(), dto.getWorkspaceName())) {
+            throw new UniqueValueExistsException(
+                    "Приватный чат с этим пользователем в этом рабочем пространстве уже создан"
+            );
+        }
+
         LocalDateTime now = LocalDateTime.now();
 
         Chat chat = Chat.builder()
@@ -143,6 +150,13 @@ public class ChatService {
                         dtoMapper.map(userTwo, UserInfoDto.class)
                 ))
                 .build();
+    }
+
+    public boolean isPrivateChatAlreadyExists(User userOne, Long userIdTwo, String workspaceName) {
+        if (workspaceService.hasNoRulesForWorkspace(userOne, workspaceName)) {
+            throw new NoRulesException("У вас нет прав на работу с этим рабочим пространством");
+        }
+        return chatUserRepository.isPrivateChatAlreadyExists(userOne.getId(), userIdTwo, workspaceName);
     }
 
     @Transactional
