@@ -371,6 +371,15 @@ public class ChatService {
                 .build();
     }
 
+    public List<UserInfoDto> getUsersWithoutDirectChat(User user, String workspaceName) {
+        if (workspaceService.hasNoRulesForWorkspace(user, workspaceName)) {
+            throw new NoRulesException("У вас нет прав на чтение этого рабочего пространства");
+        }
+        return userRepository.findUsersWithoutPrivateChat(user.getId(), workspaceName)
+                .stream().map(u -> dtoMapper.map(u, UserInfoDto.class))
+                .toList();
+    }
+
     private List<User> getParticipants(Chat chat) {
         return chatUserRepository.findByChatId(chat.getId())
                 .stream()

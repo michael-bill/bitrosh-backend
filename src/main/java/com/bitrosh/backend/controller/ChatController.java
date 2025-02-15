@@ -7,6 +7,7 @@ import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
+import com.bitrosh.backend.dto.core.UserInfoDto;
 import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
 import com.bitrosh.backend.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -104,4 +105,15 @@ public class ChatController {
     ) {
         return chatService.renameGroupChat(user, chatId, newTitle);
     }
+
+    @Operation(summary = "Получить список пользователей, с которыми ещё " +
+            "не создан личный чат в рамках заданного рабочего пространства")
+    @GetMapping("/{workspace_name}/users/without-direct-chat")
+    public List<UserInfoDto> getUsersWithoutDirectChat(
+            @AuthenticationPrincipal User user,
+            @RequestParam("workspace_name") String workspaceName
+    ) {
+        return chatService.getUsersWithoutDirectChat(user, workspaceName);
+    }
+
 }
