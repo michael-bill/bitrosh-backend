@@ -23,6 +23,6 @@ public class Role {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "role")
+    @Column(name = "name")
     private String name;
 }
