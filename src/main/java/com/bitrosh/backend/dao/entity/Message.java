@@ -27,9 +27,8 @@ public class Message {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "chat_id")
-    private Chat chat;
+    @Column(name = "chat_id")
+    private Long chatId;
 
     @ManyToOne
     @JoinColumn(name = "sender_id")
