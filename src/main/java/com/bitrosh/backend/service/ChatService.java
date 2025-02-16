@@ -410,6 +410,14 @@ public class ChatService {
                 .toList();
     }
 
+    public List<UserInfoByChatDto> getParticipantsByMessageId(Long messageId) {
+        return getParticipants(chatUserRepository.findByMessageId(messageId));
+    }
+
+    public List<UserInfoByChatDto> getParticipants(Long chatId) {
+        return getParticipants(chatUserRepository.findByChatId(chatId));
+    }
+
     private List<UserInfoByChatDto> getParticipants(Chat chat) {
         return getParticipants(chatUserRepository.findByChatId(chat.getId()));
     }

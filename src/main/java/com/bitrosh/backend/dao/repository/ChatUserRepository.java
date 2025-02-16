@@ -10,9 +10,20 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
+
     Optional<ChatUser> findByChatIdAndUserId(Long chatId, Long userId);
+
     boolean existsByChatIdAndUserId(Long chatId, Long userId);
+
     List<ChatUser> findByChatId(Long chatId);
+
+    @Query("""
+            select cu
+            from ChatUser cu
+            where cu.chat.id in (select m.chatId from Message m where m.id = :messageId)
+            """)
+    List<ChatUser> findByMessageId(Long messageId);
+
     void deleteByChatIdAndUserId(Long chatId, Long userId);
 
     @Query(value = """

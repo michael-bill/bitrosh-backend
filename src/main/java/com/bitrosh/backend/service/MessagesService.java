@@ -33,6 +33,7 @@ public class MessagesService {
     private final ChatService chatService;
     private final MinioService minioService;
     private final DtoMapper dtoMapper;
+    private final WebSocketService webSocketService;
 
     @Transactional(readOnly = true)
     public Page<MessageDto> getMessages(
@@ -89,7 +90,11 @@ public class MessagesService {
             );
         }
 
-        return dtoMapper.map(message, MessageDto.class);
+        MessageDto res = dtoMapper.map(message, MessageDto.class);
+
+        chatService.getParticipants(chatId).forEach(x -> webSocketService.notifyCreate(x.getUsername(), res));
+
+        return res;
     }
 
     @Transactional(readOnly = true)
@@ -126,6 +131,9 @@ public class MessagesService {
         }
         message.setIsDeleted(true);
         messageRepository.save(message);
+        chatService.getParticipantsByMessageId(messageId)
+                .forEach(x -> webSocketService.notifyDelete(
+                        x.getUsername(), dtoMapper.map(message, MessageDto.class)));
     }
 
 }
