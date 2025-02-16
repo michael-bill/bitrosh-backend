@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,13 +50,13 @@ public class MessageController {
             Long chatId,
 
             @Parameter(description = "Дата, старше которой будут возвращаться сообщения, по умолчанию now()")
-            @RequestParam(value = "cutoff_date", required = false)
-            Optional<LocalDateTime> cutoffDate
+            @RequestParam(value = "cutoff_time", required = false)
+            Optional<LocalDateTime> cutoffTime
     ) {
         return messagesService.getMessages(
                 user,
                 chatId,
-                cutoffDate.orElse(LocalDateTime.now()),
+                cutoffTime.orElse(LocalDateTime.now()),
                 PageRequest.of(page, size)
         );
     }
@@ -78,6 +79,34 @@ public class MessageController {
             MultipartFile file
     ) throws Exception {
         return messagesService.sendMessage(user, chatId, textContent, file);
+    }
+
+    @Operation(summary = "Прочитать сообщения старше указанной даты")
+    @PostMapping("read")
+    public void readMessage(
+            @AuthenticationPrincipal User user,
+
+            @Parameter(description = "Id чата")
+            @RequestParam("chat_id")
+            Long chatId,
+
+            @Parameter(description = "Дата, старше которой будут читаться сообщения, по умолчанию now()")
+            @RequestParam(value = "cutoff_date", required = false)
+            Optional<LocalDateTime> cutoffTime
+    ) {
+        messagesService.readMessages(user, chatId, cutoffTime.orElse(LocalDateTime.now()));
+    }
+
+    @Operation(summary = "Удалить сообщение")
+    @DeleteMapping("delete")
+    public void deleteMessage(
+            @AuthenticationPrincipal User user,
+
+            @Parameter(description = "Id сообщения")
+            @RequestParam("message_id")
+            Long messageId
+    ) {
+        messagesService.deleteMessage(user, messageId);
     }
 
     @Operation(summary = "Сказать файл из сообщения")

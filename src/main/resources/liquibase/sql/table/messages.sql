@@ -12,6 +12,7 @@ create table if not exists messages
     created_at timestamp not null default current_timestamp,
     updated_at timestamp not null default current_timestamp,
     is_read boolean not null default false,
+    is_deleted boolean not null default false,
 
     check (text_content is not null or file_path is not null)
 );

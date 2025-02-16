@@ -69,6 +69,7 @@ public class MessagesService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isRead(false)
+                .isDeleted(false)
                 .build();
 
         message = messageRepository.save(message);
@@ -95,7 +96,7 @@ public class MessagesService {
     public ResponseEntity<InputStreamResource> downloadFile(User user, Long messageId) throws Exception {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new EntityNotFoundException("Сообщение с таким id не было найдено"));
-        if (!chatService.isUserExistsInChat(user.getId(), message.getChatId())) {
+        if (!chatService.isUserExistsInChat(message.getChatId(), user.getId())) {
             throw new IllegalOperationException("Вы не можете скачивать файлы с сообщений, " +
                     "которые состоят в чатах, в которых вас нет");
         }
@@ -106,6 +107,25 @@ public class MessagesService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + message.getFileName() + "\"")
                 .body(new InputStreamResource(minioService.getFile(message.getFilePath())));
+    }
+
+    @Transactional
+    public void readMessages(User user, Long chatId, LocalDateTime cutoffTime) {
+        if (!chatService.isUserExistsInChat(chatId, user.getId())) {
+            throw new IllegalOperationException("Вы не можете читать сообщения из чатов, в которых вас нет");
+        }
+        messageRepository.readOlderThan(chatId, cutoffTime);
+    }
+
+    @Transactional
+    public void deleteMessage(User user, Long messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new EntityNotFoundException("Сообщение с таким id не было найдено"));
+        if (!chatService.isUserExistsInChat(message.getChatId(), user.getId())) {
+            throw new IllegalOperationException("Вы не можете удалять сообщения из чатов, в которых вас нет");
+        }
+        message.setIsDeleted(true);
+        messageRepository.save(message);
     }
 
 }

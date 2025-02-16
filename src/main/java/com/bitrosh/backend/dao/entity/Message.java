@@ -51,4 +51,7 @@ public class Message {
 
     @Column(name = "is_read")
     private Boolean isRead;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 }
