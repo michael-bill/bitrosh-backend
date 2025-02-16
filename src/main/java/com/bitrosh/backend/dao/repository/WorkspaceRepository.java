@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WorkspaceRepository extends JpaRepository<Workspace, String> {
-    @Query("select w.name as name, w.title as title, w.createdAt as createdAt, uw.role.name as role " +
+    @Query("select w.name as name, w.title as title, w.createdAt as createdAt, uw.role.name as workspaceRole " +
             "from Workspace w join UserWorkspace uw on w.name = uw.workspace.id " +
             "where uw.user.id = :userId")
     Page<WorkspaceProjection> findAllWorkspacesByUserId(Long userId, Pageable pageable);
@@ -20,7 +20,7 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, String> {
                 w.name as name,
                 w.title as title,
                 w.created_at as createdAt,
-                'ADMIN' as role
+                'ADMIN' as workspaceRole
             from workspace w join user_workspace uw on w.name = uw.workspace_id
             """, nativeQuery = true)
     Page<WorkspaceProjection> findAllWorkspaces(Pageable pageable);

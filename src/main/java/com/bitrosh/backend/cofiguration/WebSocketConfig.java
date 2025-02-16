@@ -20,7 +20,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");
         // Префикс для пользовательских очередей
         config.setUserDestinationPrefix("/user");
-
     }
 
     @Override

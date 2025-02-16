@@ -17,5 +17,5 @@ public class WorkspaceResDto {
     @Schema(description = "Дата создания рабочего пространства")
     private LocalDateTime createdAt;
     @Schema(description = "Роль в рабочем пространстве")
-    private WorkspaceOrChatRoleDto role;
+    private WorkspaceOrChatRoleDto workspaceRole;
 }

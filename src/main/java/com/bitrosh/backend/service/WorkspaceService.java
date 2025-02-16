@@ -61,7 +61,7 @@ public class WorkspaceService {
                     .role(roleService.getCachedByName(WorkspaceOrChatRoleDto.ADMIN.name()))
                     .build());
         WorkspaceResDto dto = dtoMapper.map(entity, WorkspaceResDto.class);
-        dto.setRole(WorkspaceOrChatRoleDto.ADMIN);
+        dto.setWorkspaceRole(WorkspaceOrChatRoleDto.ADMIN);
         return dto;
     }
 

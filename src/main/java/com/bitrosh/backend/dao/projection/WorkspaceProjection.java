@@ -6,5 +6,5 @@ public interface WorkspaceProjection {
     String getName();
     String getTitle();
     LocalDateTime getCreatedAt();
-    String getRole();
+    String getWorkspaceRole();
 }
