@@ -76,11 +76,11 @@ begin
             lm.last_message_time as lastMessageTime,
             lmd.sender_id as lastMessageSenderId,
             coalesce(fi.folders, '[]') as foldersJsonArray,
-            coalesce(cu.users, '[]') as participantsJsonArray
+            coalesce(cus.users, '[]') as participantsJsonArray
         from
             chat c
         join
-            user_workspace uw on c.workspace_id = uw.workspace_id
+            chat_user cu on c.id = cu.chat_id
         join
             users u on c.created_by = u.id
         left join
@@ -90,10 +90,10 @@ begin
         left join
             folder_info fi on c.id = fi.chat_id
         left join
-            chat_users cu on c.id = cu.chat_id
+            chat_users cus on c.id = cus.chat_id
         where
-            uw.user_id = p_user_id and
-            uw.workspace_id = p_workspace_name
+            cu.user_id = p_user_id and
+            c.workspace_id = p_workspace_name
         order by
             lm.last_message_time desc;
 end;
