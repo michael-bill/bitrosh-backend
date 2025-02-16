@@ -34,5 +34,5 @@ public class ChatResDto {
     @Schema(description = "Папки, в которых содержится чат")
     private List<FolderResDto> folders;
     @Schema(description = "Участники чата")
-    private List<UserInfoDto> participants;
+    private List<UserInfoByChatDto> participants;
 }

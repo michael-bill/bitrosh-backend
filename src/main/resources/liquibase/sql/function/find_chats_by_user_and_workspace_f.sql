@@ -46,7 +46,7 @@ begin
             select
                 cu.chat_id,
                 json_agg(
-                    json_build_object('id', cu.user_id, 'username', u.username, 'role', r.name)
+                    json_build_object('id', cu.user_id, 'username', u.username, 'chatRole', r.name)
                 ) as users
             from
                 chat_user cu

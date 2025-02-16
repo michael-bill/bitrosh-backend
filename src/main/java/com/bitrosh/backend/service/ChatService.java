@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.bitrosh.backend.cofiguration.DtoMapper;
 import com.bitrosh.backend.dao.entity.Chat;
@@ -21,6 +22,7 @@ import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
+import com.bitrosh.backend.dto.core.UserInfoByChatDto;
 import com.bitrosh.backend.dto.core.UserInfoDto;
 import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
@@ -145,11 +147,14 @@ public class ChatService {
                 .type(chat.getType().name())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(List.of(
-                        dtoMapper.map(user, UserInfoDto.class),
-                        dtoMapper.map(userTwo, UserInfoDto.class)
-                ))
-                .build();
+                .participants(
+                        Stream.of(user, userTwo)
+                                .map(x -> UserInfoByChatDto.builder()
+                                        .id(x.getId())
+                                        .username(x.getUsername())
+                                        .chatRole(WorkspaceOrChatRoleDto.ADMIN.name()).build())
+                                .toList()
+                ).build();
     }
 
     public boolean isPrivateChatAlreadyExists(User userOne, Long userIdTwo, String workspaceName) {
@@ -157,6 +162,10 @@ public class ChatService {
             throw new NoRulesException("У вас нет прав на работу с этим рабочим пространством");
         }
         return chatUserRepository.isPrivateChatAlreadyExists(userOne.getId(), userIdTwo, workspaceName);
+    }
+
+    public boolean isUserExistsInChat(Long chatId, Long userId) {
+        return chatUserRepository.existsByChatIdAndUserId(chatId, userId);
     }
 
     @Transactional
@@ -198,7 +207,14 @@ public class ChatService {
                         .joinAt(now)
                         .role(roleService.getCachedByName(WorkspaceOrChatRoleDto.USER_RW.name()))
                         .build())
-                .toList();
+                .collect(Collectors.toList());
+
+        chatUsers.add(ChatUser.builder()
+                .chat(finalChat)
+                .user(user)
+                .joinAt(now)
+                .role(roleService.getCachedByName(WorkspaceOrChatRoleDto.ADMIN.name()))
+                .build());
 
         chatUserRepository.saveAll(chatUsers);
 
@@ -209,7 +225,7 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(dtoMapper.map(users, UserInfoDto.class))
+                .participants(getParticipants(chatUsers))
                 .build();
     }
 
@@ -267,7 +283,7 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(dtoMapper.map(getParticipants(chat), UserInfoDto.class))
+                .participants(getParticipants(chat))
                 .build();
     }
 
@@ -307,7 +323,7 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(dtoMapper.map(getParticipants(chat), UserInfoDto.class))
+                .participants(getParticipants(chat))
                 .build();
     }
 
@@ -381,7 +397,7 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(dtoMapper.map(getParticipants(chat), UserInfoDto.class))
+                .participants(getParticipants(chat))
                 .build();
     }
 
@@ -394,10 +410,17 @@ public class ChatService {
                 .toList();
     }
 
-    private List<User> getParticipants(Chat chat) {
-        return chatUserRepository.findByChatId(chat.getId())
-                .stream()
-                .map(ChatUser::getUser)
+    private List<UserInfoByChatDto> getParticipants(Chat chat) {
+        return getParticipants(chatUserRepository.findByChatId(chat.getId()));
+    }
+
+    private List<UserInfoByChatDto> getParticipants(List<ChatUser> chatUsers) {
+        return chatUsers.stream()
+                .map(x -> UserInfoByChatDto.builder()
+                        .id(x.getUser().getId())
+                        .username(x.getUser().getUsername())
+                        .chatRole(x.getRole().getName())
+                        .build())
                 .toList();
     }
 }
