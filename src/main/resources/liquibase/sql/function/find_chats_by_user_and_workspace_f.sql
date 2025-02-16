@@ -34,7 +34,7 @@ begin
             select
                 cf.chat_id,
                 json_agg(
-                    json_build_object('folder_id', f.id, 'folder_name', f.name)
+                    json_build_object('id', f.id, 'name', f.name)
                 ) as folders
             from
                 chat_folder cf
