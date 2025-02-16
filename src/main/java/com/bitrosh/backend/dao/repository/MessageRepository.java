@@ -22,7 +22,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
                 m.chatId = :chatId
                 and m.createdAt <= :cutoffTime
                 and not m.isDeleted
-            order by m.createdAt
+            order by m.createdAt desc
             """)
     Page<Message> findMessages(Long chatId, LocalDateTime cutoffTime, Pageable pageable);
 
