@@ -19,9 +19,8 @@ public class WebSocketService {
         messagingTemplate.convertAndSendToUser(username, CREATE + "message", message);
     }
 
-    public MessageDto notifyUpdate(String username, MessageDto message) {
+    public void notifyUpdate(String username, MessageDto message) {
         messagingTemplate.convertAndSendToUser(username, UPDATE + "message", message);
-        return message;
     }
 
     public void notifyDelete(String username, MessageDto message) {
