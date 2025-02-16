@@ -2,6 +2,7 @@ package com.bitrosh.backend.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.bitrosh.backend.cofiguration.DtoMapper;
 import com.bitrosh.backend.dao.entity.Message;
@@ -119,7 +120,12 @@ public class MessagesService {
         if (!chatService.isUserExistsInChat(chatId, user.getId())) {
             throw new IllegalOperationException("Вы не можете читать сообщения из чатов, в которых вас нет");
         }
-        messageRepository.readOlderThan(chatId, cutoffTime);
+        List<Message> unreaded = messageRepository.findUnreadedOlderThan(chatId, cutoffTime);
+        unreaded.forEach(x -> x.setIsRead(true));
+        messageRepository.saveAll(unreaded);
+        chatService.getParticipants(chatId)
+                .forEach(u -> dtoMapper.map(unreaded, MessageDto.class)
+                        .forEach(m -> webSocketService.notifyUpdate(u.getUsername(), m)));
     }
 
     @Transactional

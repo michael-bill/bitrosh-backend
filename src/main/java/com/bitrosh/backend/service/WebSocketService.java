@@ -15,9 +15,8 @@ public class WebSocketService {
     private static final String UPDATE = "queue/update/";
     private static final String DELETE = "queue/delete/";
 
-    public MessageDto notifyCreate(String username, MessageDto message) {
+    public void notifyCreate(String username, MessageDto message) {
         messagingTemplate.convertAndSendToUser(username, CREATE + "message", message);
-        return message;
     }
 
     public MessageDto notifyUpdate(String username, MessageDto message) {
