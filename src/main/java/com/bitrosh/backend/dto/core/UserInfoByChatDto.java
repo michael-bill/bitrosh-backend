@@ -17,5 +17,5 @@ public class UserInfoByChatDto {
     @Schema(description = "Имя пользователя", example = "John")
     private String username;
     @Schema(description = "Роль в чате", example = "USER")
-    private String chatRole;
+    private WorkspaceOrChatRoleDto chatRole;
 }

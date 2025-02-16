@@ -40,6 +40,9 @@ public class Message {
     @Column(name = "file_path")
     private String filePath;
 
+    @Column(name = "file_name")
+    private String fileName;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -47,5 +50,5 @@ public class Message {
     private LocalDateTime updatedAt;
 
     @Column(name = "is_read")
-    private boolean isRead;
+    private Boolean isRead;
 }

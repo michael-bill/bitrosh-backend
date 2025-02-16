@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Schema(description = "Сообщение")
-public class MessageDto {
+public class AppMessageDto {
     @Schema(description = "Текст сообщения")
     String message;
 }

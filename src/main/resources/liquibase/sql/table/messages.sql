@@ -8,6 +8,7 @@ create table if not exists messages
     sender_id bigint references users (id) not null,
     text_content text check (char_length(text_content) >= 1),
     file_path text,
+    file_name text,
     created_at timestamp not null default current_timestamp,
     updated_at timestamp not null default current_timestamp,
     is_read boolean not null default false,

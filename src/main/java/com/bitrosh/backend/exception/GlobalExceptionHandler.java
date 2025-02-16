@@ -16,6 +16,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ErrorResponseDto> handleException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponseDto.builder()
+                        .message("Произошло что-то страшное и непердвиденное: " + ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build());
+    }
+
     @ExceptionHandler(BitroshException.class)
     protected ResponseEntity<ErrorResponseDto> handleBitroshException(BitroshException ex) {
         return ResponseEntity.status(ex.getStatus())

@@ -96,6 +96,11 @@
 			<artifactId>modelmapper</artifactId>
 			<version>3.2.2</version>
 		</dependency>
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>8.5.15</version>
+		</dependency>
 	</dependencies>
 
 	<build>

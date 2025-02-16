@@ -152,7 +152,7 @@ public class ChatService {
                                 .map(x -> UserInfoByChatDto.builder()
                                         .id(x.getId())
                                         .username(x.getUsername())
-                                        .chatRole(WorkspaceOrChatRoleDto.ADMIN.name()).build())
+                                        .chatRole(WorkspaceOrChatRoleDto.ADMIN).build())
                                 .toList()
                 ).build();
     }
@@ -419,7 +419,7 @@ public class ChatService {
                 .map(x -> UserInfoByChatDto.builder()
                         .id(x.getUser().getId())
                         .username(x.getUser().getUsername())
-                        .chatRole(x.getRole().getName())
+                        .chatRole(WorkspaceOrChatRoleDto.valueOf(x.getRole().getName()))
                         .build())
                 .toList();
     }
