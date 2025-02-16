@@ -109,7 +109,7 @@ public class MessageController {
         messagesService.deleteMessage(user, messageId);
     }
 
-    @Operation(summary = "Сказать файл из сообщения")
+    @Operation(summary = "Скачать файл из сообщения")
     @GetMapping("/file/download")
     public ResponseEntity<InputStreamResource> downloadFile(
             @AuthenticationPrincipal User user,
