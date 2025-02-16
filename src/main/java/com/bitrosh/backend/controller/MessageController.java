@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,7 +62,7 @@ public class MessageController {
 
     @Operation(summary = "Отправить сообщение")
     @PostMapping(value = "/send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void sendMessage(
+    public MessageDto sendMessage(
             @AuthenticationPrincipal User user,
 
             @Parameter(description = "Id чата")
@@ -75,6 +77,18 @@ public class MessageController {
             @RequestBody(required = false)
             MultipartFile file
     ) throws Exception {
-        messagesService.sendMessage(user, chatId, textContent, file);
+        return messagesService.sendMessage(user, chatId, textContent, file);
+    }
+
+    @Operation(summary = "Сказать файл из сообщения")
+    @GetMapping("/file/download")
+    public ResponseEntity<InputStreamResource> downloadFile(
+            @AuthenticationPrincipal User user,
+
+            @Parameter(description = "Id сообщения с файлом")
+            @RequestParam("message_id")
+            Long messageId
+    ) throws Exception {
+        return messagesService.downloadFile(user, messageId);
     }
 }
