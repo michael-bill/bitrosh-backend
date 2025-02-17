@@ -11,20 +11,20 @@ public class WebSocketService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    private static final String CREATE = "queue/create/";
-    private static final String UPDATE = "queue/update/";
-    private static final String DELETE = "queue/delete/";
+    private static final String CREATE = "/topic/%s/queue/create/%s";
+    private static final String UPDATE = "/topic/%s/queue/update/%s";
+    private static final String DELETE = "/topic/%s/queue/delete/%s";
 
     public void notifyCreate(String username, MessageDto message) {
-        messagingTemplate.convertAndSendToUser(username, CREATE + "message", message);
+        messagingTemplate.convertAndSend(CREATE.formatted(username, "message"), message);
     }
 
     public void notifyUpdate(String username, MessageDto message) {
-        messagingTemplate.convertAndSendToUser(username, UPDATE + "message", message);
+        messagingTemplate.convertAndSend(UPDATE.formatted(username, "message"), message);
     }
 
     public void notifyDelete(String username, MessageDto message) {
-        messagingTemplate.convertAndSendToUser(username, DELETE + "message", message);
+        messagingTemplate.convertAndSend(DELETE.formatted(username, "message"), message);
     }
 
 }

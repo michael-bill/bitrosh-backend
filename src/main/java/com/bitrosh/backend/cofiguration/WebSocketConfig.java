@@ -14,12 +14,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Включаем брокер сообщений для тем (topic) и пользовательских очередей (user)
-        config.enableSimpleBroker("/topic", "/queue");
-        // Префикс для сообщений, направляемых в контроллеры
+        config.enableSimpleBroker("/topic");
         config.setApplicationDestinationPrefixes("/app");
-        // Префикс для пользовательских очередей
-        config.setUserDestinationPrefix("/user");
     }
 
     @Override

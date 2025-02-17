@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.bitrosh.backend.dto.messages.ErrorResponseDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +14,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponseDto> handleException(Exception ex) {
+        log.error("Пятисотка: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponseDto.builder()
                         .message("Произошло что-то страшное и непердвиденное: " + ex.getMessage())
