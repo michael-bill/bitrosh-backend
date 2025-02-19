@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "card")
+@Table(name = "board_columns")
 public class BoardColumn {
 
     @Id
@@ -39,7 +39,7 @@ public class BoardColumn {
     @Column(name = "color")
     private String color;
 
-    @Column(name = "card_count")
+    @Column(name = "card_count", insertable = false)
     private Integer cardCount;
 
 }

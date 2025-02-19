@@ -102,11 +102,17 @@ public class WorkspaceService {
     }
 
     public boolean hasNoRulesForWorkspace(User user, String workspaceName) {
+        if (!workspaceRepository.existsByName(workspaceName)) {
+            throw new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено");
+        }
         return !user.isAdmin() &&
                 !userWorkspaceRepository.existsByUserIdAndWorkspaceName(user.getId(), workspaceName);
     }
 
     public boolean hasNoRulesForWorkspace(User user, String workspaceName, String roleName) {
+        if (!workspaceRepository.existsByName(workspaceName)) {
+            throw new EntityNotFoundException("Рабочее пространство с именем " + workspaceName + " не найдено");
+        }
         // вот тут тож могут быть проблемы, мб надо будет подправить
         return user.isAdmin() ||
                 userWorkspaceRepository.existsByUserIdAndWorkspaceNameAndRoleName(
