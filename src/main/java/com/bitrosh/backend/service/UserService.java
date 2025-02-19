@@ -64,6 +64,7 @@ public class UserService {
 
     public MyUserInfoDto getMyUserInfo(User user) {
         MyUserInfoDto dto = dtoMapper.map(user, MyUserInfoDto.class);
+        dto.setUserId(user.getId());
         if (dto.getCurrentWorkspace() != null) {
             dto.getCurrentWorkspace().setWorkspaceRole(WorkspaceOrChatRoleDto.valueOf(roleRepository
                     .findByUserIdAndWorkspaceName(

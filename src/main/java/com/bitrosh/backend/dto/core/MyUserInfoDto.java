@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Информация о текущем пользователе")
 public class MyUserInfoDto {
     @Schema(description = "Id пользователя", example = "1")
-    private Long id;
+    private Long userId;
     @Schema(description = "Имя пользователя", example = "John")
     private String username;
     @Schema(description = "Роль в системе", example = "USER")
