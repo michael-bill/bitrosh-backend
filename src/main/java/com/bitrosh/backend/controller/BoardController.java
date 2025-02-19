@@ -5,7 +5,7 @@ import java.util.List;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.BoardColumnReqDto;
 import com.bitrosh.backend.dto.core.BoardColumnResDto;
-import com.bitrosh.backend.service.BoardService;
+import com.bitrosh.backend.service.BoardColumnService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Работа с канбан доской")
 public class BoardController {
 
-    private final BoardService boardService;
+    private final BoardColumnService boardColumnService;
 
     @Operation(summary = "Получить список колонок по рабочему пространству")
     @GetMapping("columns")
@@ -33,7 +33,7 @@ public class BoardController {
             @AuthenticationPrincipal User user,
             @RequestParam("workspace_name") String workspaceName
     ) {
-        return boardService.getColumns(user, workspaceName);
+        return boardColumnService.getColumns(user, workspaceName);
     }
 
     @Operation(summary = "Получить колонку по id")
@@ -42,7 +42,7 @@ public class BoardController {
             @AuthenticationPrincipal User user,
             @RequestParam("id") Long id
     ) {
-        return boardService.getColumn(user, id);
+        return boardColumnService.getColumn(user, id);
     }
 
     @Operation(summary = "Создать колонку")
@@ -51,7 +51,7 @@ public class BoardController {
             @AuthenticationPrincipal User user,
             @RequestBody BoardColumnReqDto boardColumnReqDto
     ) {
-        return boardService.createColumn(user, boardColumnReqDto);
+        return boardColumnService.createColumn(user, boardColumnReqDto);
     }
 
     @Operation(summary = "Обновить колонку")
@@ -61,7 +61,7 @@ public class BoardController {
             @RequestParam("id") Long id,
             @RequestBody BoardColumnReqDto boardColumnReqDto
     ) {
-        return boardService.updateColumn(user, id, boardColumnReqDto);
+        return boardColumnService.updateColumn(user, id, boardColumnReqDto);
     }
 
     @Operation(summary = "Удалить колонку (пока не пашет)")
@@ -70,6 +70,6 @@ public class BoardController {
             @AuthenticationPrincipal User user,
             @RequestParam("id") Long id
     ) {
-        boardService.deleteColumn(user, id);
+        boardColumnService.deleteColumn(user, id);
     }
 }

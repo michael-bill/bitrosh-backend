@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class BoardService {
+public class BoardColumnService {
 
     private final BoardColumnRepository boardColumnRepository;
     private final WorkspaceService workspaceService;

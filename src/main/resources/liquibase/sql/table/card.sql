@@ -7,7 +7,7 @@ create table if not exists card
     column_id bigint references board_columns (id) not null,
     created_by bigint references users (id) not null,
     executor_id bigint references users (id),
-    sprint_id bigint references sprint (id) not null,
+    sprint_id bigint references sprint (id),
     title text check (char_length(title) >= 1),
     content text check (char_length(content) >= 1),
     created_at timestamp not null default current_timestamp,

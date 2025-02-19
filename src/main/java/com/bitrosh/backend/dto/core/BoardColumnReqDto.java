@@ -12,7 +12,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Информация о колонке на канбан доске")
+@Schema(description = "Запрос создания колонки на канбан доске")
 public class BoardColumnReqDto {
     @Schema(description = "Название рабочего пространства")
     private String workspaceName;
