@@ -68,6 +68,7 @@ public class CardService {
                 .orElseThrow(() -> new EntityNotFoundException("Исполнитель с таким id не был найден")) : null;
 
         return dtoMapper.map(cardRepository.save(Card.builder()
+                .id(id)
                 .boardColumn(boardColumn)
                 .createdBy(user)
                 .executor(executor)
