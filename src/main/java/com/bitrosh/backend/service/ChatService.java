@@ -508,6 +508,15 @@ public class ChatService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public List<UserInfoByChatDto> getUsersInChat(User user, Long chatId) {
+        if (chatUserRepository.findByChatIdAndUserId(chatId, user.getId()).isEmpty()) {
+            throw new NoRulesException("Вы не можете просматривать участников чата не состоя в нем");
+        }
+        return getParticipants(chatId);
+    }
+
+    @Transactional(readOnly = true)
     public List<UserInfoDto> getUsersWithoutPrivateChat(User user, String workspaceName) {
         if (workspaceService.hasNoRulesForWorkspace(user, workspaceName)) {
             throw new NoRulesException("У вас нет прав на чтение этого рабочего пространства");

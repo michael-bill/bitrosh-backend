@@ -8,6 +8,7 @@ import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
 import com.bitrosh.backend.dto.core.PrivateChatCreationDto;
+import com.bitrosh.backend.dto.core.UserInfoByChatDto;
 import com.bitrosh.backend.dto.core.UserInfoDto;
 import com.bitrosh.backend.dto.core.WorkspaceOrChatRoleDto;
 import com.bitrosh.backend.dto.types.BooleanDto;
@@ -137,6 +138,15 @@ public class ChatController {
             @RequestParam("new_title") String newTitle
     ) {
         return chatService.renameGroupChatOrChannel(user, chatId, newTitle);
+    }
+
+    @Operation(summary = "Получить список пользователей в чате")
+    @GetMapping("/{chat_id}/users")
+    public List<UserInfoByChatDto> getUsersInChat(
+            @AuthenticationPrincipal User user,
+            @RequestParam("chat_id") Long chatId
+    ) {
+        return chatService.getUsersInChat(user, chatId);
     }
 
     @Operation(summary = "Получить список пользователей, с которыми ещё " +
