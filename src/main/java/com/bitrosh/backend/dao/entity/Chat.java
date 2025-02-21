@@ -56,6 +56,7 @@ public class Chat {
 
     public enum ChatType {
         PRIVATE,
-        GROUP
+        GROUP,
+        CHANNEL
     }
 }

@@ -18,6 +18,7 @@ import com.bitrosh.backend.dao.repository.ChatUserRepository;
 import com.bitrosh.backend.dao.repository.RoleRepository;
 import com.bitrosh.backend.dao.repository.UserRepository;
 import com.bitrosh.backend.dao.repository.WorkspaceRepository;
+import com.bitrosh.backend.dto.core.ChannelCreationDto;
 import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
@@ -230,13 +231,61 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResDtoWithWorkspace addUserToGroupChat(User user, Long userId, Long chatId, String role) {
+    public ChatResDtoWithWorkspace createChannel(User user, ChannelCreationDto dto) {
+        Workspace workspace = workspaceRepository.findById(dto.getWorkspaceName())
+                .orElseThrow(() -> new EntityNotFoundException("Рабочее пространство не найдено"));
+
+        if (workspaceService.hasNoRulesForWorkspace(user, dto.getWorkspaceName())) {
+            throw new NoRulesException("У вас нет прав на работу с этим рабочим пространством");
+        }
+
+        Chat chat = Chat.builder()
+                .workspace(workspace)
+                .createdBy(user)
+                .createdAt(LocalDateTime.now())
+                .title(dto.getChannelName())
+                .type(Chat.ChatType.CHANNEL)
+                .build();
+        chat = chatRepository.save(chat);
+
+        chatUserRepository.save(ChatUser.builder()
+                .chat(chat)
+                .user(user)
+                .joinAt(LocalDateTime.now())
+                .role(roleService.getCachedByName(WorkspaceOrChatRoleDto.ADMIN.name()))
+                .build());
+
+        return ChatResDtoWithWorkspace.builder()
+                .id(chat.getId())
+                .workspace(dtoMapper.map(workspace, WorkspaceResDto.class))
+                .type(chat.getType().name())
+                .createdBy(user.getUsername())
+                .createdAt(chat.getCreatedAt())
+                .participants(List.of(UserInfoByChatDto.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .chatRole(WorkspaceOrChatRoleDto.ADMIN).build())
+                ).build();
+    }
+
+    @Transactional
+    public ChatResDtoWithWorkspace addUserToGroupChat(User user, Long userId, String username, Long chatId, String role) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Чат с таким id не найден"));
         Role roleEntity = roleRepository.findByName(role)
                 .orElseThrow(() -> new EntityNotFoundException("Роль с таким именем не найдена"));
-        User invitedUser = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким id не найден"));
+
+        User invitedUser;
+
+        if (userId != null) {
+            invitedUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким id не найден"));
+        } else if (username != null) {
+            invitedUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким username не найден"));
+        } else {
+            throw new IllegalArgumentException("Не указан userId или username");
+        }
 
         if (chat.getType() != Chat.ChatType.GROUP) {
             throw new IllegalOperationException("Можно добавить пользователя только в групповой чат");
@@ -273,6 +322,63 @@ public class ChatService {
                 .user(invitedUser)
                 .joinAt(LocalDateTime.now())
                 .role(roleEntity)
+                .build();
+        chatUserRepository.save(newChatUser);
+
+        return ChatResDtoWithWorkspace.builder()
+                .id(chat.getId())
+                .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
+                .type(chat.getType().name())
+                .title(chat.getTitle())
+                .createdBy(user.getUsername())
+                .createdAt(chat.getCreatedAt())
+                .participants(getParticipants(chat))
+                .build();
+    }
+
+    @Transactional
+    public ChatResDtoWithWorkspace addUserToChannel(User user, Long userId, String username, Long chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Канал с таким id не найден"));
+
+        User invitedUser;
+
+        if (userId != null) {
+            invitedUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким id не найден"));
+        } else if (username != null) {
+            invitedUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким username не найден"));
+        } else {
+            throw new IllegalArgumentException("Не указан userId или username");
+        }
+
+        if (chat.getType() != Chat.ChatType.CHANNEL) {
+            throw new IllegalOperationException("Можно добавить пользователя только в канал");
+        }
+
+        // Пользователь должен меть права хотяб на чтение рабочего пространства
+        if (workspaceService.hasNoRulesForWorkspace(user, chat.getWorkspace().getName())) {
+            throw new NoRulesException("У вас нет прав на работу с этим рабочим пространством");
+        }
+
+        if (workspaceService.hasNoRulesForWorkspace(invitedUser, chat.getWorkspace().getName())) {
+            throw new NoRulesException(
+                    "Пользователя, которого вы патетесь добавить в чат, нет в этом рабочем пространстве"
+            );
+        }
+
+        if (!user.isAdmin()) {
+            if (!chatUserRepository.existsByChatIdAndUserId(chatId, user.getId())) {
+                throw new NoRulesException("Вы не состоите в этом канале, чтобы сюда кого-то приглашать");
+            }
+        }
+
+        ChatUser newChatUser = ChatUser.builder()
+                .chat(chat)
+                .user(invitedUser)
+                .joinAt(LocalDateTime.now())
+                .role(roleService.getCachedByName("USER_RO"))
                 .build();
         chatUserRepository.save(newChatUser);
 

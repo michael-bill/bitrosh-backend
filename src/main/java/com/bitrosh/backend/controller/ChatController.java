@@ -3,6 +3,7 @@ package com.bitrosh.backend.controller;
 import java.util.List;
 
 import com.bitrosh.backend.dao.entity.User;
+import com.bitrosh.backend.dto.core.ChannelCreationDto;
 import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
@@ -35,7 +36,7 @@ public class ChatController {
     @GetMapping("/my")
     public List<ChatResDto> getMyChats(
             @AuthenticationPrincipal User user,
-            @RequestParam(value = "workspace_name") String workspaceName
+            @RequestParam("workspace_name") String workspaceName
     ) {
         return chatService.getMyChats(user, workspaceName);
     }
@@ -58,15 +59,36 @@ public class ChatController {
         return chatService.createGroupChat(user, dto);
     }
 
+    @Operation(summary = "Создание канала")
+    @PostMapping("/create/channel")
+    public ChatResDtoWithWorkspace createChanel(
+            @AuthenticationPrincipal User user,
+            @RequestBody ChannelCreationDto dto
+    ) {
+        return chatService.createChannel(user, dto);
+    }
+
     @Operation(summary = "Добавить пользователя в группой чат")
-    @PostMapping("/add/user")
+    @PostMapping("/add/group")
     public ChatResDtoWithWorkspace addUserToGroupChat(
             @AuthenticationPrincipal User user,
-            @RequestParam("user_id") Long userId,
+            @RequestParam(value = "user_id", required = false) Long userId,
+            @RequestParam(value = "username", required = false) String username,
             @RequestParam("chat_id") Long chatId,
             @RequestParam("role") WorkspaceOrChatRoleDto role
     ) {
-        return chatService.addUserToGroupChat(user, userId, chatId, role.name());
+        return chatService.addUserToGroupChat(user, userId, username, chatId, role.name());
+    }
+
+    @Operation(summary = "Добавить пользователя в канал")
+    @PostMapping("/add/channel")
+    public ChatResDtoWithWorkspace addUserToChannel(
+            @AuthenticationPrincipal User user,
+            @RequestParam(value = "user_id", required = false) Long userId,
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam("chat_id") Long chatId
+    ) {
+        return chatService.addUserToChannel(user, userId, username, chatId);
     }
 
     @Operation(summary = "Удалить пользователя из группового чата")
