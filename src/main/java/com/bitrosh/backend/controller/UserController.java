@@ -5,6 +5,7 @@ import com.bitrosh.backend.dto.core.MyUserInfoDto;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.UserInfoByWorkspaceDto;
 import com.bitrosh.backend.dto.core.UserInfoDto;
+import com.bitrosh.backend.dto.types.StringDto;
 import com.bitrosh.backend.service.AuthService;
 import com.bitrosh.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,5 +77,14 @@ public class UserController {
             @RequestBody CreateUserRequest createUserRequest
     ) {
         return authService.createByRequest(user, createUserRequest);
+    }
+
+    @Operation(summary = "Сменить пароль")
+    @PostMapping("/change-password")
+    public void changePassword(
+            @AuthenticationPrincipal User user,
+            @RequestBody StringDto newPassword
+    ) {
+        authService.changePassword(user, newPassword);
     }
 }

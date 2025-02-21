@@ -8,6 +8,7 @@ import com.bitrosh.backend.dto.auth.SignUpRequest;
 import com.bitrosh.backend.dto.core.UserInfoDto;
 import com.bitrosh.backend.dto.core.WorkspaceResDto;
 import com.bitrosh.backend.dao.entity.User;
+import com.bitrosh.backend.dto.types.StringDto;
 import com.bitrosh.backend.exception.IncorrectLoginDataException;
 import com.bitrosh.backend.exception.NoRulesException;
 import jakarta.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +85,7 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public UserInfoDto createByRequest(User user, CreateUserRequest request) {
         if (!user.isAdmin()) {
             throw new NoRulesException("У пользователя нет прав для создания пользователей");
@@ -95,5 +98,11 @@ public class AuthService {
                 .build();
 
         return dtoMapper.map(userService.create(newUser), UserInfoDto.class);
+    }
+
+    @Transactional
+    public void changePassword(User user, StringDto newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword.getValue()));
+        userService.save(user);
     }
 }
