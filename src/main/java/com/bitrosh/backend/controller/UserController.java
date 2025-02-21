@@ -1,5 +1,6 @@
 package com.bitrosh.backend.controller;
 
+import com.bitrosh.backend.dto.auth.CreateUserRequest;
 import com.bitrosh.backend.dto.core.MyUserInfoDto;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.UserInfoByWorkspaceDto;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +32,7 @@ public class UserController {
 
     @Operation(summary = "Получить информацию о пользователе")
     @GetMapping("/info/me")
-    private MyUserInfoDto getUserInfo(
+    public MyUserInfoDto getUserInfo(
             @AuthenticationPrincipal User user
     ) {
         return userService.getMyUserInfo(user);
@@ -37,7 +40,7 @@ public class UserController {
 
     @Operation(summary = "Получить список пользователей по рабочему пространству")
     @GetMapping("/info/list/{workspace_name}")
-    private Page<UserInfoByWorkspaceDto> getUserListByWorkspaceName(
+    public Page<UserInfoByWorkspaceDto> getUserListByWorkspaceName(
             @AuthenticationPrincipal User user,
             @PathVariable("workspace_name") String workspaceName,
             @Parameter(description = "Номер страницы (начинается с 0)")
@@ -52,7 +55,7 @@ public class UserController {
 
     @Operation(summary = "Получить список всех пользователей")
     @GetMapping("/info/list/all")
-    private Page<UserInfoDto> getAllUsers(
+    public Page<UserInfoDto> getAllUsers(
             @PathVariable(name = "username_search", required = false) String usernameKeyWord,
             @Parameter(description = "Номер страницы (начинается с 0)")
             @RequestParam(defaultValue = "0")
@@ -62,5 +65,14 @@ public class UserController {
             Integer size
     ) {
         return userService.getAllUsers(usernameKeyWord, PageRequest.of(page, size, Sort.by("username").ascending()));
+    }
+
+    @Operation(summary = "Создать пользователя")
+    @PostMapping("/create")
+    public UserInfoDto createUser(
+            @AuthenticationPrincipal User user,
+            @RequestBody CreateUserRequest createUserRequest
+    ) {
+        return userService.createByRequest(user, createUserRequest);
     }
 }

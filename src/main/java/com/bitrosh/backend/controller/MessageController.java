@@ -90,8 +90,8 @@ public class MessageController {
             @RequestParam("message_id")
             Long messageId,
 
-            @Parameter(description = "Текст сообщения", required = false)
-            @RequestParam(value = "text_content", required = false)
+            @Parameter(description = "Текст сообщения")
+            @RequestParam(value = "text_content")
             String textContent
     ) {
         return messagesService.editMessage(user, messageId, textContent);

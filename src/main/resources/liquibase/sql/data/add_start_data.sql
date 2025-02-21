@@ -8,11 +8,11 @@ insert into workspace (name, title, created_at) values
 ('ws2', 'Второе рабочее пространство', '2024-02-01 10:00:00');
 
 -- 2. Заполнение users (сначала без current_workspace_id)
-insert into users (id, username, password, role) values
-(1, 'admin', '$2a$10$RPNOc9j0WOphyWlKxqzs1ukBSm2yI0WszzqCMv4oHwvFE0hjrtEQm', 'ADMIN'),
-(2, 'user1', '$2a$10$BkyS7WBOpdq/IWnwdd49u.65xbKC7EVAUWlWnYNyrmZP1jIIe6eqi', 'USER'),
-(3, 'user2', '$2a$10$YRlZeQZ9h.TOFPfsbR083OcWyyJWpZfV6K7UvNJ4XFdIZyt4Kx7nW', 'USER'),
-(4, 'manager', '$2a$10$Kcwrys2Fic0lRCfG0SAljeR1H4GaS6QkQ0fr4nTwy/ZTX2ndmtREW', 'USER');
+insert into users (username, password, role) values
+('admin', '$2a$10$RPNOc9j0WOphyWlKxqzs1ukBSm2yI0WszzqCMv4oHwvFE0hjrtEQm', 'ADMIN'),
+('user1', '$2a$10$BkyS7WBOpdq/IWnwdd49u.65xbKC7EVAUWlWnYNyrmZP1jIIe6eqi', 'USER'),
+('user2', '$2a$10$YRlZeQZ9h.TOFPfsbR083OcWyyJWpZfV6K7UvNJ4XFdIZyt4Kx7nW', 'USER'),
+('manager', '$2a$10$Kcwrys2Fic0lRCfG0SAljeR1H4GaS6QkQ0fr4nTwy/ZTX2ndmtREW', 'USER');
 
 -- 3. Связываем пользователей с workspace
 insert into user_workspace (user_id, workspace_id, role_id) values

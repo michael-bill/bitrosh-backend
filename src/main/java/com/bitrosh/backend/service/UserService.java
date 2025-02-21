@@ -5,6 +5,7 @@ import com.bitrosh.backend.dao.entity.UserWorkspace;
 import com.bitrosh.backend.dao.repository.RoleRepository;
 import com.bitrosh.backend.dao.repository.UserWorkspaceRepository;
 import com.bitrosh.backend.dao.specification.UserSpecifications;
+import com.bitrosh.backend.dto.auth.CreateUserRequest;
 import com.bitrosh.backend.dto.core.MyUserInfoDto;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.UserInfoByWorkspaceDto;
@@ -42,6 +43,15 @@ public class UserService {
             throw new UniqueValueExistsException("Пользователь с таким именем уже существует");
         }
         return save(user);
+    }
+
+    public UserInfoDto createByRequest(User user, CreateUserRequest request) {
+        if (!user.isAdmin()) {
+            throw new NoRulesException("У пользователя нет прав для создания пользователей");
+        }
+
+        User newUser = dtoMapper.map(request, User.class);
+        return dtoMapper.map(create(newUser), UserInfoDto.class);
     }
 
     public User getByUsername(String username) {
