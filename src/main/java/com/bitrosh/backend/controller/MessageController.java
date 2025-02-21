@@ -34,7 +34,7 @@ public class MessageController {
     private final MessagesService messagesService;
 
     @Operation(summary = "Получить список сообщений")
-    @GetMapping("/get-all")
+    @GetMapping("get-all")
     public Page<MessageDto> getMessages(
             @AuthenticationPrincipal User user,
             @Parameter(description = "Номер страницы (начинается с 0)")
@@ -62,7 +62,7 @@ public class MessageController {
     }
 
     @Operation(summary = "Отправить сообщение")
-    @PostMapping(value = "/send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public MessageDto sendMessage(
             @AuthenticationPrincipal User user,
 
@@ -79,6 +79,22 @@ public class MessageController {
             MultipartFile file
     ) throws Exception {
         return messagesService.sendMessage(user, chatId, textContent, file);
+    }
+
+    @Operation(summary = "Редактировать сообщение")
+    @PostMapping("edit")
+    public MessageDto editMessage(
+            @AuthenticationPrincipal User user,
+
+            @Parameter(description = "Id сообщения")
+            @RequestParam("message_id")
+            Long messageId,
+
+            @Parameter(description = "Текст сообщения", required = false)
+            @RequestParam(value = "text_content", required = false)
+            String textContent
+    ) {
+        return messagesService.editMessage(user, messageId, textContent);
     }
 
     @Operation(summary = "Прочитать сообщения старше указанной даты")

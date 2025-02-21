@@ -98,6 +98,24 @@ public class MessagesService {
         return res;
     }
 
+    @Transactional
+    public MessageDto editMessage(
+        User user,
+        Long messageId,
+        String textContent
+    ) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new EntityNotFoundException("Сообщение с таким id не было найдено"));
+        if (!chatService.isUserExistsInChat(message.getChatId(), user.getId())) {
+            throw new IllegalOperationException("Вы не можете редактировать сообщения, " +
+                    "которые состоят в чатах, в которых вас нет");
+        }
+        message.setTextContent(textContent);
+        MessageDto res = dtoMapper.map(messageRepository.save(message), MessageDto.class);
+        chatService.getParticipants(messageId).forEach(x -> webSocketService.notifyUpdate(x.getUsername(), res));
+        return res;
+    }
+
     @Transactional(readOnly = true)
     public ResponseEntity<InputStreamResource> downloadFile(User user, Long messageId) throws Exception {
         Message message = messageRepository.findById(messageId)
