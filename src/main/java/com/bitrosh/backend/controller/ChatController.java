@@ -120,13 +120,23 @@ public class ChatController {
     }
 
     @Operation(summary = "Переименовать групповой чат")
-    @PostMapping("/rename")
+    @PostMapping("/rename/group")
     public ChatResDtoWithWorkspace renameGroupChat(
             @AuthenticationPrincipal User user,
             @RequestParam("chat_id") Long chatId,
             @RequestParam("new_title") String newTitle
     ) {
-        return chatService.renameGroupChat(user, chatId, newTitle);
+        return chatService.renameGroupChatOrChannel(user, chatId, newTitle);
+    }
+
+    @Operation(summary = "Переименовать канал")
+    @PostMapping("/rename/channel")
+    public ChatResDtoWithWorkspace renameChannel(
+            @AuthenticationPrincipal User user,
+            @RequestParam("chat_id") Long chatId,
+            @RequestParam("new_title") String newTitle
+    ) {
+        return chatService.renameGroupChatOrChannel(user, chatId, newTitle);
     }
 
     @Operation(summary = "Получить список пользователей, с которыми ещё " +

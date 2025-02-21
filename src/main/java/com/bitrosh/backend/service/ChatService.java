@@ -1,6 +1,7 @@
 package com.bitrosh.backend.service;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -469,12 +470,12 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResDtoWithWorkspace renameGroupChat(User user, Long chatId, String newTitle) {
+    public ChatResDtoWithWorkspace renameGroupChatOrChannel(User user, Long chatId, String newTitle) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Чат с таким id не найден"));
 
-        if (chat.getType() != Chat.ChatType.GROUP) {
-            throw new IllegalOperationException("Можно переименовывать только групповой чат");
+        if (!EnumSet.of(Chat.ChatType.GROUP, Chat.ChatType.CHANNEL).contains(chat.getType())) {
+            throw new IllegalOperationException("Вы не можете переименовать этот чат");
         }
 
         // Пользователь должен меть права хотяб на чтение рабочего пространства
