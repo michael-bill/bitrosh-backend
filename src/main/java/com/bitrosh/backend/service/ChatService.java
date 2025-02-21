@@ -401,7 +401,7 @@ public class ChatService {
                 .build();
     }
 
-    public List<UserInfoDto> getUsersWithoutDirectChat(User user, String workspaceName) {
+    public List<UserInfoDto> getUsersWithoutPrivateChat(User user, String workspaceName) {
         if (workspaceService.hasNoRulesForWorkspace(user, workspaceName)) {
             throw new NoRulesException("У вас нет прав на чтение этого рабочего пространства");
         }

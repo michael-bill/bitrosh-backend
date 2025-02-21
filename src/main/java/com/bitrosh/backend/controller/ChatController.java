@@ -109,12 +109,12 @@ public class ChatController {
 
     @Operation(summary = "Получить список пользователей, с которыми ещё " +
             "не создан личный чат в рамках заданного рабочего пространства")
-    @GetMapping("/{workspace_name}/users/without-direct-chat")
+    @GetMapping("/{workspace_name}/users/without-private-chat")
     public List<UserInfoDto> getUsersWithoutDirectChat(
             @AuthenticationPrincipal User user,
             @RequestParam("workspace_name") String workspaceName
     ) {
-        return chatService.getUsersWithoutDirectChat(user, workspaceName);
+        return chatService.getUsersWithoutPrivateChat(user, workspaceName);
     }
 
     @Operation(summary = "Есть ли у пользователя приватный чат с заданным " +
