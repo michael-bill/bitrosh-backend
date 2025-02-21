@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,15 +44,6 @@ public class UserService {
             throw new UniqueValueExistsException("Пользователь с таким именем уже существует");
         }
         return save(user);
-    }
-
-    public UserInfoDto createByRequest(User user, CreateUserRequest request) {
-        if (!user.isAdmin()) {
-            throw new NoRulesException("У пользователя нет прав для создания пользователей");
-        }
-
-        User newUser = dtoMapper.map(request, User.class);
-        return dtoMapper.map(create(newUser), UserInfoDto.class);
     }
 
     public User getByUsername(String username) {

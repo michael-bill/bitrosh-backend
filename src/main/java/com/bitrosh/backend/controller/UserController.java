@@ -5,6 +5,7 @@ import com.bitrosh.backend.dto.core.MyUserInfoDto;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dto.core.UserInfoByWorkspaceDto;
 import com.bitrosh.backend.dto.core.UserInfoDto;
+import com.bitrosh.backend.service.AuthService;
 import com.bitrosh.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @Operation(summary = "Получить информацию о пользователе")
     @GetMapping("/info/me")
@@ -73,6 +75,6 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @RequestBody CreateUserRequest createUserRequest
     ) {
-        return userService.createByRequest(user, createUserRequest);
+        return authService.createByRequest(user, createUserRequest);
     }
 }
