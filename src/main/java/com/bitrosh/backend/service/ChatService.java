@@ -20,6 +20,7 @@ import com.bitrosh.backend.dao.repository.RoleRepository;
 import com.bitrosh.backend.dao.repository.UserRepository;
 import com.bitrosh.backend.dao.repository.WorkspaceRepository;
 import com.bitrosh.backend.dto.core.ChannelCreationDto;
+import com.bitrosh.backend.dto.core.ChatParticipantChange;
 import com.bitrosh.backend.dto.core.ChatResDto;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.GroupChatCreationDto;
@@ -342,6 +343,8 @@ public class ChatService {
                 .build();
         chatUserRepository.save(newChatUser);
 
+        var participants = getParticipants(chat);
+
         var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
@@ -349,10 +352,14 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(getParticipants(chat))
+                .participants(participants)
                 .build();
 
         webSocketService.notifyCreate(invitedUser.getUsername(), res);
+        participants.forEach(x -> webSocketService.notifyAdd(x.getUsername(), ChatParticipantChange.builder()
+                        .chat(res)
+                        .user(dtoMapper.map(invitedUser, UserInfoDto.class))
+                .build()));
 
         return res;
     }
@@ -403,6 +410,8 @@ public class ChatService {
                 .build();
         chatUserRepository.save(newChatUser);
 
+        var participants = getParticipants(chat);
+
         var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
@@ -410,10 +419,15 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(getParticipants(chat))
+                .participants(participants)
                 .build();
 
         webSocketService.notifyCreate(invitedUser.getUsername(), res);
+
+        participants.forEach(x -> webSocketService.notifyAdd(x.getUsername(), ChatParticipantChange.builder()
+                .chat(res)
+                .user(dtoMapper.map(invitedUser, UserInfoDto.class))
+                .build()));
 
         return res;
     }
@@ -447,6 +461,8 @@ public class ChatService {
 
         chatUserRepository.deleteByChatIdAndUserId(chatId, userId);
 
+        var participants = getParticipants(chat);
+
         var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
@@ -454,10 +470,15 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(getParticipants(chat))
+                .participants(participants)
                 .build();
 
         webSocketService.notifyDelete(removedUser.getUsername(), res);
+
+        participants.forEach(x -> webSocketService.notifyRemove(x.getUsername(), ChatParticipantChange.builder()
+                .chat(res)
+                .user(dtoMapper.map(removedUser, UserInfoDto.class))
+                .build()));
 
         return res;
     }
@@ -471,6 +492,8 @@ public class ChatService {
         }
         chatUserRepository.deleteByChatIdAndUserId(chatId, user.getId());
 
+        var participants = getParticipants(chat);
+
         var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
@@ -478,10 +501,15 @@ public class ChatService {
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(getParticipants(chat))
+                .participants(participants)
                 .build();
 
         webSocketService.notifyDelete(user.getUsername(), res);
+
+        participants.forEach(x -> webSocketService.notifyAdd(x.getUsername(), ChatParticipantChange.builder()
+                .chat(res)
+                .user(dtoMapper.map(user, UserInfoDto.class))
+                .build()));
     }
 
     @Transactional

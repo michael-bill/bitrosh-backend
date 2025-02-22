@@ -1,5 +1,6 @@
 package com.bitrosh.backend.service;
 
+import com.bitrosh.backend.dto.core.ChatParticipantChange;
 import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.MessageDto;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,14 @@ public class WebSocketService {
 
     public void notifyDelete(String username, ChatResDtoWithWorkspace message) {
         messagingTemplate.convertAndSend(DELETE.formatted(username, "chat"), message);
+    }
+
+    public void notifyAdd(String username, ChatParticipantChange change) {
+        messagingTemplate.convertAndSend(CREATE.formatted(username, "participant/add"), change);
+    }
+
+    public void notifyRemove(String username, ChatParticipantChange change) {
+        messagingTemplate.convertAndSend(CREATE.formatted(username, "participant/remove"), change);
     }
 
 }
