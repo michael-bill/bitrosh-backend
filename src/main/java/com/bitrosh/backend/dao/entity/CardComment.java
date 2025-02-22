@@ -36,12 +36,11 @@ public class CardComment {
     @JoinColumn(name = "card_id")
     private Card card;
 
-    @ManyToOne
-    @JoinColumn(name = "reply_to_comment_id")
-    private CardComment replyToComment;
+    @Column(name = "content")
+    private String content;
 
-    @Column(name = "text")
-    private String text;
+    @Column(name = "reply_to_comment_id")
+    private Long replyToCommentId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
