@@ -65,17 +65,13 @@ insert into messages (chat_id, sender_id, text_content, created_at) values
 (3, 4, 'Начинаем новый проект', '2024-02-02 12:05:00');
 
 -- 11. Карточки
-insert into card (column_id, created_by, sprint_id, title, content) values
-(1, 1, 1, 'Настройка сервера', 'Установить необходимое ПО'),
-(2, 2, 1, 'Разработка фичи', 'Интеграция с API'),
-(5, 4, 3, 'Планирование', 'Составить roadmap');
+insert into card (column_id, created_by, sprint_id, title, content, deadline) values
+(1, 1, 1, 'Настройка сервера', 'Установить необходимое ПО', '2026-02-02 12:05:00'),
+(2, 2, 1, 'Разработка фичи', 'Интеграция с API', '2026-02-02 12:05:00'),
+(5, 4, 3, 'Планирование', 'Составить roadmap', '2026-02-02 12:05:00');
 
 -- 12. Комментарии к карточкам
 insert into card_comments (user_id, card_id, content) values
 (1, 1, 'Начните с установки Docker'),
 (2, 2, 'API документация готова?');
 
--- 13. Опроса
-insert into poll (author_id, chat_id, title, variants, answers) values
-(1, 1, 'Выбор технологии', '{"React","Vue","Angular"}', '{0,0,0}'),
-(4, 3, 'Сроки проекта', '{"2 недели","1 месяц","3 месяца"}', '{0,0,0}');
