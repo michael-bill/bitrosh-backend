@@ -9,6 +9,7 @@ import com.bitrosh.backend.dao.entity.Chat;
 import com.bitrosh.backend.dao.entity.Folder;
 import com.bitrosh.backend.dao.entity.User;
 import com.bitrosh.backend.dao.entity.Workspace;
+import com.bitrosh.backend.dao.repository.ChatRepository;
 import com.bitrosh.backend.dao.repository.FolderRepository;
 import com.bitrosh.backend.dto.core.FolderReqDto;
 import com.bitrosh.backend.dto.core.FolderResDto;
@@ -25,6 +26,7 @@ public class FolderService {
     private final FolderRepository folderRepository;
     private final WorkspaceService workspaceService;
     private final DtoMapper dtoMapper;
+    private final ChatRepository chatRepository;
 
     @Transactional
     public FolderResDto createFolder(User user, FolderReqDto folderReqDto) {
@@ -47,13 +49,19 @@ public class FolderService {
         if (!Objects.equals(folder.getUser().getId(), user.getId())) {
             throw new NoRulesException("У пользователя нет прав на изменение не своей папки");
         }
+        if (workspaceService.hasNoRulesForWorkspace(user, folderReqDto.getWorkspaceName())) {
+            throw new NoRulesException("У пользователя нет прав на перемещение папки в данное рабочее пространство");
+        }
         return dtoMapper.map(folderRepository.save(Folder.builder()
                 .id(id)
                 .user(user)
                 .name(folderReqDto.getName())
                 .workspace(Workspace.builder().name(folderReqDto.getWorkspaceName()).build())
                 .chats(folderReqDto.getChatIds().stream()
-                        .map(chatId -> Chat.builder().id(chatId).build()).collect(Collectors.toSet()))
+                        .map(chatId -> chatRepository.findById(chatId)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                        "Чат с id %d не существует".formatted(chatId))))
+                        .collect(Collectors.toSet()))
                 .build()), FolderResDto.class);
     }
 
@@ -79,7 +87,7 @@ public class FolderService {
 
     @Transactional(readOnly = true)
     public List<FolderResDto> getFolders(User user) {
-        return folderRepository.findAllByUser(user).stream()
+        return folderRepository.findAllByUserId(user.getId()).stream()
                 .map(folder -> dtoMapper.map(folder, FolderResDto.class))
                 .collect(Collectors.toList());
     }

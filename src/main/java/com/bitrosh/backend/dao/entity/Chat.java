@@ -42,14 +42,14 @@ public class Chat {
     private User createdBy;
 
     @Column(name = "created_at")
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "title")
-    String title;
+    private String title;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    ChatType type;
+    private ChatType type;
 
     @ManyToMany(mappedBy = "chats")
     private Set<Folder> folders = new HashSet<>();
