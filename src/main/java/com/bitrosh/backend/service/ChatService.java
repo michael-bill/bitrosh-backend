@@ -52,6 +52,7 @@ public class ChatService {
     private final RoleRepository roleRepository;
     private final DtoMapper dtoMapper;
     private final ObjectMapper objectMapper;
+    private final WebSocketService webSocketService;
 
     // это пиздец
     public List<ChatResDto> getMyChats(User user, String workspaceName) {
@@ -143,7 +144,7 @@ public class ChatService {
         chatUserRepository.save(chatUserOne);
         chatUserRepository.save(chatUserTwo);
 
-        return ChatResDtoWithWorkspace.builder()
+        var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(workspace, WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -157,6 +158,11 @@ public class ChatService {
                                         .chatRole(WorkspaceOrChatRoleDto.ADMIN).build())
                                 .toList()
                 ).build();
+
+        webSocketService.notifyCreate(user.getUsername(), res);
+        webSocketService.notifyCreate(userTwo.getUsername(), res);
+
+        return res;
     }
 
     public boolean isPrivateChatAlreadyExists(User userOne, Long userIdTwo, String workspaceName) {
@@ -220,15 +226,21 @@ public class ChatService {
 
         chatUserRepository.saveAll(chatUsers);
 
-        return ChatResDtoWithWorkspace.builder()
+        var participants = getParticipants(chatUsers);
+
+        var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(workspace, WorkspaceResDto.class))
                 .type(chat.getType().name())
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(getParticipants(chatUsers))
+                .participants(participants)
                 .build();
+
+        participants.forEach(x -> webSocketService.notifyCreate(x.getUsername(), res));
+
+        return res;
     }
 
     @Transactional
@@ -256,7 +268,7 @@ public class ChatService {
                 .role(roleService.getCachedByName(WorkspaceOrChatRoleDto.ADMIN.name()))
                 .build());
 
-        return ChatResDtoWithWorkspace.builder()
+        var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(workspace, WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -267,6 +279,10 @@ public class ChatService {
                                 .username(user.getUsername())
                                 .chatRole(WorkspaceOrChatRoleDto.ADMIN).build())
                 ).build();
+
+        webSocketService.notifyCreate(user.getUsername(), res);
+
+        return res;
     }
 
     @Transactional
@@ -326,7 +342,7 @@ public class ChatService {
                 .build();
         chatUserRepository.save(newChatUser);
 
-        return ChatResDtoWithWorkspace.builder()
+        var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -335,6 +351,10 @@ public class ChatService {
                 .createdAt(chat.getCreatedAt())
                 .participants(getParticipants(chat))
                 .build();
+
+        webSocketService.notifyCreate(invitedUser.getUsername(), res);
+
+        return res;
     }
 
     @Transactional
@@ -383,7 +403,7 @@ public class ChatService {
                 .build();
         chatUserRepository.save(newChatUser);
 
-        return ChatResDtoWithWorkspace.builder()
+        var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -392,17 +412,21 @@ public class ChatService {
                 .createdAt(chat.getCreatedAt())
                 .participants(getParticipants(chat))
                 .build();
+
+        webSocketService.notifyCreate(invitedUser.getUsername(), res);
+
+        return res;
     }
 
     @Transactional
-    public ChatResDtoWithWorkspace removeUserFromGroupChat(User user, Long userId, Long chatId) {
+    public ChatResDtoWithWorkspace removeUserFromGroupChatOrChannel(User user, Long userId, Long chatId) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Чат с таким id не найден"));
-        userRepository.findById(userId)
+        User removedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с таким id не найден"));
 
-        if (chat.getType() != Chat.ChatType.GROUP) {
-            throw new IllegalOperationException("Можно удалить пользователя только из группового чата");
+        if (!EnumSet.of(Chat.ChatType.GROUP, Chat.ChatType.CHANNEL).contains(chat.getType())) {
+            throw new IllegalOperationException("Можно удалить пользователя только из группового чата или канала");
         }
 
         // Пользователь должен меть права хотяб на чтение рабочего пространства
@@ -423,7 +447,7 @@ public class ChatService {
 
         chatUserRepository.deleteByChatIdAndUserId(chatId, userId);
 
-        return ChatResDtoWithWorkspace.builder()
+        var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
                 .type(chat.getType().name())
@@ -432,16 +456,32 @@ public class ChatService {
                 .createdAt(chat.getCreatedAt())
                 .participants(getParticipants(chat))
                 .build();
+
+        webSocketService.notifyDelete(removedUser.getUsername(), res);
+
+        return res;
     }
 
     @Transactional
-    public void leaveFromGroupChat(User user, Long chatId) {
+    public void leaveFromGroupChatChannel(User user, Long chatId) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Чат с таким id не найден"));
-        if (chat.getType() != Chat.ChatType.GROUP) {
-            throw new IllegalOperationException("Можно выйти только из группового чата");
+        if (!EnumSet.of(Chat.ChatType.GROUP, Chat.ChatType.CHANNEL).contains(chat.getType())) {
+            throw new IllegalOperationException("Можно выйти только из группового чата или канала");
         }
         chatUserRepository.deleteByChatIdAndUserId(chatId, user.getId());
+
+        var res = ChatResDtoWithWorkspace.builder()
+                .id(chat.getId())
+                .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
+                .type(chat.getType().name())
+                .title(chat.getTitle())
+                .createdBy(user.getUsername())
+                .createdAt(chat.getCreatedAt())
+                .participants(getParticipants(chat))
+                .build();
+
+        webSocketService.notifyDelete(user.getUsername(), res);
     }
 
     @Transactional
@@ -464,6 +504,17 @@ public class ChatService {
                 throw new NoRulesException("У вас нет прав на удаление этого чата");
             }
         }
+
+        var res = ChatResDtoWithWorkspace.builder()
+                .id(chat.getId())
+                .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
+                .type(chat.getType().name())
+                .title(chat.getTitle())
+                .createdBy(user.getUsername())
+                .createdAt(chat.getCreatedAt())
+                .build();
+
+        getParticipants(chat).forEach(x -> webSocketService.notifyDelete(x.getUsername(), res));
 
         // Каскадное удаление чата, информации по пользователях в этом чате и сообщений
         chatRepository.delete(chat);
@@ -497,15 +548,21 @@ public class ChatService {
         chat.setTitle(newTitle);
         chatRepository.save(chat);
 
-        return ChatResDtoWithWorkspace.builder()
+        var participants = getParticipants(chat);
+
+        var res = ChatResDtoWithWorkspace.builder()
                 .id(chat.getId())
                 .workspace(dtoMapper.map(chat.getWorkspace(), WorkspaceResDto.class))
                 .type(chat.getType().name())
                 .title(chat.getTitle())
                 .createdBy(user.getUsername())
                 .createdAt(chat.getCreatedAt())
-                .participants(getParticipants(chat))
+                .participants(participants)
                 .build();
+
+        participants.forEach(x -> webSocketService.notifyUpdate(x.getUsername(), res));
+
+        return res;
     }
 
     @Transactional(readOnly = true)

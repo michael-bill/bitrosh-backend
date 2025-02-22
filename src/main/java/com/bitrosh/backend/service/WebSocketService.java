@@ -1,5 +1,6 @@
 package com.bitrosh.backend.service;
 
+import com.bitrosh.backend.dto.core.ChatResDtoWithWorkspace;
 import com.bitrosh.backend.dto.core.MessageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -25,6 +26,18 @@ public class WebSocketService {
 
     public void notifyDelete(String username, MessageDto message) {
         messagingTemplate.convertAndSend(DELETE.formatted(username, "message"), message);
+    }
+
+    public void notifyCreate(String username, ChatResDtoWithWorkspace message) {
+        messagingTemplate.convertAndSend(CREATE.formatted(username, "chat"), message);
+    }
+
+    public void notifyUpdate(String username, ChatResDtoWithWorkspace message) {
+        messagingTemplate.convertAndSend(UPDATE.formatted(username, "chat"), message);
+    }
+
+    public void notifyDelete(String username, ChatResDtoWithWorkspace message) {
+        messagingTemplate.convertAndSend(DELETE.formatted(username, "chat"), message);
     }
 
 }

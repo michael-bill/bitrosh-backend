@@ -69,7 +69,7 @@ public class ChatController {
         return chatService.createChannel(user, dto);
     }
 
-    @Operation(summary = "Добавить пользователя в группой чат")
+    @Operation(summary = "Добавить пользователя в групповой чат")
     @PostMapping("/add/group")
     public ChatResDtoWithWorkspace addUserToGroupChat(
             @AuthenticationPrincipal User user,
@@ -92,23 +92,23 @@ public class ChatController {
         return chatService.addUserToChannel(user, userId, username, chatId);
     }
 
-    @Operation(summary = "Удалить пользователя из группового чата")
+    @Operation(summary = "Удалить пользователя из группового чата или канала")
     @PostMapping("/remove/user")
     public ChatResDtoWithWorkspace removeUserFromGroupChat(
             @AuthenticationPrincipal User user,
             @RequestParam("user_id") Long userId,
             @RequestParam("chat_id") Long chatId
     ) {
-        return chatService.removeUserFromGroupChat(user, userId, chatId);
+        return chatService.removeUserFromGroupChatOrChannel(user, userId, chatId);
     }
 
-    @Operation(summary = "Выйти из группового чата")
+    @Operation(summary = "Выйти из группового чата или канала")
     @PostMapping("/leave")
     public void leaveFromGroupChat(
             @AuthenticationPrincipal User user,
             @RequestParam("chat_id") Long chatId
     ) {
-        chatService.leaveFromGroupChat(user, chatId);
+        chatService.leaveFromGroupChatChannel(user, chatId);
     }
 
     @Operation(summary = "Удалить чат")
@@ -120,19 +120,9 @@ public class ChatController {
         chatService.deleteChat(user, chatId);
     }
 
-    @Operation(summary = "Переименовать групповой чат")
-    @PostMapping("/rename/group")
+    @Operation(summary = "Переименовать групповой чат или канал")
+    @PostMapping("/rename")
     public ChatResDtoWithWorkspace renameGroupChat(
-            @AuthenticationPrincipal User user,
-            @RequestParam("chat_id") Long chatId,
-            @RequestParam("new_title") String newTitle
-    ) {
-        return chatService.renameGroupChatOrChannel(user, chatId, newTitle);
-    }
-
-    @Operation(summary = "Переименовать канал")
-    @PostMapping("/rename/channel")
-    public ChatResDtoWithWorkspace renameChannel(
             @AuthenticationPrincipal User user,
             @RequestParam("chat_id") Long chatId,
             @RequestParam("new_title") String newTitle
