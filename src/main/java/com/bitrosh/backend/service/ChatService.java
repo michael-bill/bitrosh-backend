@@ -320,6 +320,10 @@ public class ChatService {
             );
         }
 
+        if (chatUserRepository.existsByChatIdAndUserId(chatId, invitedUser.getId())) {
+            throw new IllegalOperationException("Пользователь уже состоит в чате");
+        }
+
         if (!user.isAdmin()) {
             ChatUser chatUserByInviter = chatUserRepository.findByChatIdAndUserId(chatId, user.getId())
                     .orElseThrow(
@@ -394,6 +398,10 @@ public class ChatService {
             throw new NoRulesException(
                     "Пользователя, которого вы патетесь добавить в чат, нет в этом рабочем пространстве"
             );
+        }
+
+        if (chatUserRepository.existsByChatIdAndUserId(chatId, invitedUser.getId())) {
+            throw new IllegalOperationException("Пользователь уже состоит в чате");
         }
 
         if (!user.isAdmin()) {
