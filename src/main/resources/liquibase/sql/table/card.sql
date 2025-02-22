@@ -27,12 +27,6 @@ before update on card
 for each row
 execute procedure update_updated_at();
 
-create trigger trg_card_move
-after update on card
-for each row
-when (old.column_id is distinct from new.column_id)
-execute procedure log_card_move();
-
 -- Триггер на вставку карточки
 create trigger trg_card_insert
 after insert on card

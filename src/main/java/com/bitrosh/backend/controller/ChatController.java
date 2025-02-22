@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -134,7 +135,7 @@ public class ChatController {
     @GetMapping("/{chat_id}/users")
     public List<UserInfoByChatDto> getUsersInChat(
             @AuthenticationPrincipal User user,
-            @RequestParam("chat_id") Long chatId
+            @PathVariable("chat_id") Long chatId
     ) {
         return chatService.getUsersInChat(user, chatId);
     }
@@ -144,7 +145,7 @@ public class ChatController {
     @GetMapping("/{workspace_name}/users/without-private-chat")
     public List<UserInfoDto> getUsersWithoutPrivateChat(
             @AuthenticationPrincipal User user,
-            @RequestParam("workspace_name") String workspaceName
+            @PathVariable("workspace_name") String workspaceName
     ) {
         return chatService.getUsersWithoutPrivateChat(user, workspaceName);
     }
@@ -155,7 +156,7 @@ public class ChatController {
     public BooleanDto hasPrivateChat(
             @AuthenticationPrincipal User user,
             @RequestParam("user_id") Long userId,
-            @RequestParam("workspace_name") String workspaceName
+            @PathVariable("workspace_name") String workspaceName
     ) {
         return BooleanDto.builder()
                 .value(chatService.isPrivateChatAlreadyExists(user, userId, workspaceName))

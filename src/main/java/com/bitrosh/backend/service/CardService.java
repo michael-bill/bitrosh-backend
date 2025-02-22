@@ -53,9 +53,8 @@ public class CardService {
 
     @Transactional
     public CardResDto updateCard(User user, Long id, CardReqDto cardReqDto) {
-        if (!cardRepository.existsById(id)) {
-            throw new EntityNotFoundException("Карточка с таким id не была найдена");
-        }
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Карточка с таким id не была найдена"));
 
         BoardColumn boardColumn = boardColumnRepository.findById(cardReqDto.getBoardColumnId())
                 .orElseThrow(() -> new EntityNotFoundException("Колонка с таким id не была найдена"));
@@ -74,6 +73,7 @@ public class CardService {
                 .executor(executor)
                 .title(cardReqDto.getTitle())
                 .content(cardReqDto.getContent())
+                .createdAt(card.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
                 .deadline(cardReqDto.getDeadline())
                 .build()), CardResDto.class);

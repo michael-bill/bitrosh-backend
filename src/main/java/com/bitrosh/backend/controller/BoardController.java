@@ -64,7 +64,7 @@ public class BoardController {
         return boardColumnService.updateColumn(user, id, boardColumnReqDto);
     }
 
-    @Operation(summary = "Удалить колонку (пока не пашет)")
+    @Operation(summary = "Удалить колонку (можно только если на ней нет карточек)")
     @DeleteMapping("column")
     public void deleteColumn(
             @AuthenticationPrincipal User user,

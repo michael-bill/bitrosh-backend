@@ -10,6 +10,7 @@ import com.bitrosh.backend.dao.repository.BoardColumnRepository;
 import com.bitrosh.backend.dto.core.BoardColumnReqDto;
 import com.bitrosh.backend.dto.core.BoardColumnResDto;
 import com.bitrosh.backend.exception.EntityNotFoundException;
+import com.bitrosh.backend.exception.IllegalOperationException;
 import com.bitrosh.backend.exception.NoRulesException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,9 @@ public class BoardColumnService {
                 .orElseThrow(() -> new EntityNotFoundException("Колонка не найдена"));
         if (workspaceService.hasNoRulesForWorkspace(user, column.getWorkspace().getName())) {
             throw new NoRulesException("У пользователя нет прав на удаление колонки в данном рабочем пространстве");
+        }
+        if (column.getCardCount() > 0) {
+            throw new IllegalOperationException("Прежде чем удалить колонку, необходимо переместить все карточки на ней в другую");
         }
         boardColumnRepository.delete(column);
     }
