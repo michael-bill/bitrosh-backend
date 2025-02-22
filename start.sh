@@ -1,28 +1,16 @@
 #!/bin/bash
+set -e  # Прерывать выполнение при ошибках
 
-git pull origin main
+# 1. Обновление кода
+echo "=== Pulling latest code ==="
+git pull
 
-mvn clean install -DskipTests=true
+# 2. Остановка и удаление контейнеров проекта
+echo -e "\n=== Stopping and cleaning project containers ==="
+docker-compose down --rmi local --volumes --remove-orphans
 
-APP_JAR=$(ls target/bitrosh-backend*.jar 2>/dev/null | head -n 1)
+# 3. Запуск новой сборки
+echo -e "\n=== Starting fresh deployment ==="
+docker-compose up --build --force-recreate -d
 
-if [ -z "$APP_JAR" ]; then
-  echo "No JAR file found after build process."
-  exit 1
-fi
-
-PID=$(pgrep -f "$APP_JAR")
-if [ -n "$PID" ]; then
-  echo "Application already running with PID: $PID. Terminating process."
-  kill "$PID"
-  sleep 2
-  if kill -0 "$PID" >/dev/null 2>&1; then
-    echo "Process did not terminate. Forcing termination."
-    kill -9 "$PID"
-  fi
-fi
-
-nohup java -jar "$APP_JAR" > out.txt 2>&1 &
-
-NEW_PID=$!
-echo "New application started with PID: $NEW_PID"
+echo -e "\n=== Deployment complete! ==="
